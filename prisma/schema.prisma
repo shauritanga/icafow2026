@@ -1,0 +1,154 @@
+// ICAFoW 2026 — data model
+// Postgres + Prisma. Run: npx prisma migrate dev && npx prisma db seed
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RegistrationType {
+  ATTENDEE
+  SPONSOR
+  EXHIBITOR
+  PARTNER
+  SPEAKER
+  PITCH
+}
+
+enum RegistrationStatus {
+  PENDING       // created, awaiting payment / review
+  CONFIRMED     // paid or approved
+  CANCELLED
+  WAITLISTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum Currency {
+  USD
+  TZS
+}
+
+enum PaymentMethod {
+  CARD
+  TIGOPESA
+  MPESA
+  AIRTELMONEY
+  UNSET
+}
+
+/// One row per registration of any audience type.
+model Registration {
+  id        String             @id @default(cuid())
+  reference String             @unique // e.g. ICA-7F3K9Q
+  type      RegistrationType
+  status    RegistrationStatus @default(PENDING)
+
+  // Contact / lead
+  fullName     String
+  email        String
+  phone        String?
+  organization String?
+  jobTitle     String?
+  country      String?
+
+  // Selected product (pass id / booth id / tier id) + display label
+  packageId    String?
+  packageLabel String?
+
+  // Amount owed for this registration (snapshot at creation time)
+  amount   Float    @default(0)
+  currency Currency @default(USD)
+
+  // Free-form, type-specific details captured from each form
+  details Json?
+
+  notes     String?
+  payments  Payment[]
+  paper     Paper?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([type, status])
+  @@index([email])
+}
+
+/// A payment attempt against a registration. Multiple allowed (retries).
+model Payment {
+  id        String        @id @default(cuid())
+  reference String        @unique // gateway order reference / transid
+  status    PaymentStatus @default(PENDING)
+  method    PaymentMethod @default(UNSET)
+
+  amount   Float
+  currency Currency @default(USD)
+
+  // Selcom fields
+  selcomOrderId     String? // our order_id sent to Selcom
+  selcomTransId     String? // Selcom transaction id (transid)
+  selcomReference   String? // Selcom reference
+  selcomPaymentToken String?
+  checkoutUrl       String?
+  gatewayPayload    Json?   // raw responses / webhook bodies for audit
+  failureReason     String?
+
+  paidAt    DateTime?
+  registrationId String
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([registrationId])
+}
+
+/// Research paper attached to an attendee (Researcher Pass) registration.
+model Paper {
+  id       String  @id @default(cuid())
+  title    String
+  abstract String  @db.Text
+  track    String?
+  keywords String?
+  authors  Json?   // [{name, email, affiliation}]
+  fileUrl  String?
+  status   String  @default("submitted") // submitted | under_review | accepted | rejected
+
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// General contact / enquiry messages.
+model ContactMessage {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  organization String?
+  subject      String
+  message      String   @db.Text
+  handled      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+/// Admin / staff users for the dashboard (NextAuth credentials).
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         String   @default("admin") // admin | staff | viewer
+  createdAt    DateTime @default(now())
+}

@@ -1,26 +1,165 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  ICAFoW 2026 design system.
+  Brand palette derived from the ICAFoW / ARIFA logos:
+  deep maroon + vivid green on white.
+*/
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.75rem;
+
+  /* Brand */
+  --brand-maroon: oklch(0.42 0.16 25);      /* ~#8E1B1B */
+  --brand-maroon-dark: oklch(0.32 0.13 25); /* ~#5E1212 */
+  --brand-maroon-soft: oklch(0.62 0.13 25);
+  --brand-green: oklch(0.56 0.16 150);      /* ~#1B8A3F */
+  --brand-green-dark: oklch(0.45 0.14 150);
+  --brand-green-light: oklch(0.66 0.17 150);
+  --brand-gold: oklch(0.78 0.13 85);
+
+  /* shadcn tokens */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.01 285);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.01 285);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.01 285);
+  --primary: var(--brand-maroon);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: var(--brand-green);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.967 0.001 286);
+  --muted-foreground: oklch(0.45 0.01 286);
+  --accent: oklch(0.96 0.03 150);
+  --accent-foreground: var(--brand-green-dark);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.92 0.004 286);
+  --input: oklch(0.92 0.004 286);
+  --ring: var(--brand-maroon);
+}
+
+.dark {
+  --background: oklch(0.16 0.006 285);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.2 0.006 285);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.2 0.006 285);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: var(--brand-maroon-soft);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: var(--brand-green-light);
+  --secondary-foreground: oklch(0.16 0 0);
+  --muted: oklch(0.27 0.006 286);
+  --muted-foreground: oklch(0.71 0.01 286);
+  --accent: oklch(0.27 0.02 150);
+  --accent-foreground: oklch(0.9 0.05 150);
+  --destructive: oklch(0.62 0.21 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: var(--brand-maroon-soft);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-maroon: var(--brand-maroon);
+  --color-maroon-dark: var(--brand-maroon-dark);
+  --color-maroon-soft: var(--brand-maroon-soft);
+  --color-green: var(--brand-green);
+  --color-green-dark: var(--brand-green-dark);
+  --color-green-light: var(--brand-green-light);
+  --color-gold: var(--brand-gold);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background-color: var(--brand-maroon);
+    color: white;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .container-edge {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 1024px) {
+    .container-edge { padding-inline: 2rem; }
+  }
+  .text-gradient-brand {
+    background: linear-gradient(100deg, var(--brand-maroon), var(--brand-green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-brand-gradient {
+    background: linear-gradient(120deg, var(--brand-maroon-dark) 0%, var(--brand-maroon) 45%, var(--brand-green-dark) 100%);
+  }
+  .bg-mesh {
+    background-image:
+      radial-gradient(at 0% 0%, color-mix(in oklab, var(--brand-maroon) 22%, transparent) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, color-mix(in oklab, var(--brand-green) 18%, transparent) 0px, transparent 45%),
+      radial-gradient(at 80% 100%, color-mix(in oklab, var(--brand-gold) 14%, transparent) 0px, transparent 40%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

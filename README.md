@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ICAFoW 2026 — Conference Website
 
-## Getting Started
+Production-ready website for the **International Conference on AI & the Future of Work
+(ICAFoW 2026)** — 24–26 September 2026, JNICC, Dar es Salaam, Tanzania. Hosted by the
+Africa Research Institute For AI (ARIFA).
 
-First, run the development server:
+A modern single-page marketing site plus a full registration + **Selcom** payment system,
+invoicing, and an admin dashboard.
 
+## Tech stack
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** + custom design system (shadcn-style primitives)
+- **Framer Motion** animations
+- **React Hook Form** + **Zod** validation
+- **Prisma 6** + **PostgreSQL**
+- **NextAuth (Auth.js v5)** for the admin dashboard
+- **Selcom** payment gateway (with a built-in mock mode for local dev)
+
+## Features
+- 15 marketing sections: Hero, About, Tracks, Important Dates, Speakers, Call for Papers,
+  Registration, Sponsorship, Exhibition, Pitch Competition, Program, Venue, Partners, FAQ, Contact.
+- 6 audience-specific registration flows: **Attendee/Author, Sponsor, Exhibitor, Partner,
+  Speaker, Pitch Competition**.
+- Full Selcom flow: initiate → hosted checkout → callback → webhook → verify → settle, with
+  retry/failure recovery.
+- Auto-generated **invoice** and **receipt** (printable / save-as-PDF).
+- Admin dashboard: overview metrics, registrations, payments, papers, sponsors, exhibitors.
+- SEO: metadata, Open Graph, Twitter cards, JSON-LD `Event` schema, `sitemap.xml`, `robots.txt`.
+
+## Getting started
+
+### 1. Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment
+```bash
+cp .env.example .env
+```
+Then edit `.env` — set `DATABASE_URL`, `NEXTAUTH_SECRET` (`openssl rand -base64 32`), admin
+credentials, and the Selcom keys. Leave `SELCOM_MOCK="true"` to test payments without real keys.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Database
+```bash
+npm run db:migrate     # create tables
+npm run db:seed        # create the admin user + sample data
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Run
+```bash
+npm run dev            # http://localhost:3000
+```
 
-## Learn More
+- Public site: `/`
+- Registration: `/register/attendee` (and `/sponsor`, `/exhibitor`, `/partner`, `/speaker`, `/pitch`)
+- Admin: `/admin` (sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`)
 
-To learn more about Next.js, take a look at the following resources:
+## Selcom payments
+Implementation lives in `src/lib/selcom/` (signing, client) and
+`src/app/api/payments/selcom/*` (initiate, callback, webhook, verify).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Mock mode** (`SELCOM_MOCK=true` or blank keys): `/payment/[ref]` shows "Simulate Success /
+  Failure" buttons so the full flow works without credentials.
+- **Live mode**: set `SELCOM_BASE_URL`, `SELCOM_API_KEY`, `SELCOM_API_SECRET`, `SELCOM_VENDOR_ID`
+  and `SELCOM_MOCK=false`. Confirm the exact order/field contract against your Selcom docs.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Register your **webhook** URL with Selcom as: `https://<your-domain>/api/payments/selcom/webhook`.
 
-## Deploy on Vercel
+## Content
+All copy and pricing is centralized in `src/lib/content/*` — edit there and it updates across the
+site. See **`ASSUMPTIONS.md`** for the list of placeholder content (tracks, sponsor tiers,
+speakers, CFP dates, contact details) to confirm before launch.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy
+Optimized for **Vercel**:
+1. Push to a Git repo and import into Vercel.
+2. Add a PostgreSQL database (Vercel Postgres, Neon, Supabase, RDS, …).
+3. Set all `.env` variables in the Vercel project settings.
+4. Build command `npm run build` runs `prisma generate` automatically. Run `prisma migrate deploy`
+   against the production database (e.g. as a release step).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build (runs `prisma generate`) |
+| `npm run start` | Start the production server |
+| `npm run db:migrate` | Create/apply a dev migration |
+| `npm run db:seed` | Seed admin + sample data |
+| `npm run db:studio` | Open Prisma Studio |
+
+---
+Generated with [Claude Code](https://claude.com/claude-code).

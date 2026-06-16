@@ -1,0 +1,71 @@
+import Link from "next/link";
+import Image from "next/image";
+import { Mic2, ArrowRight } from "lucide-react";
+import { Section, SectionHeading } from "@/components/layout/section";
+import { Stagger, StaggerItem, Reveal } from "@/components/motion/reveal";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { speakers, initials } from "@/lib/content/speakers";
+
+export function Speakers() {
+  return (
+    <Section id="speakers" muted>
+      <SectionHeading
+        eyebrow="Speakers & Keynote Guests"
+        title={<>Learn from <span className="text-gradient-brand">100+ visionary leaders</span></>}
+        description="Ministers, researchers, executives and innovators from across Africa and beyond will share insights on AI and the future of work. Full speaker line-up announced soon."
+      />
+
+      <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {speakers.map((s) => (
+          <StaggerItem key={s.id}>
+            <Card className="group relative h-full overflow-hidden border-violet-300/50 p-0 transition-all hover:-translate-y-1 hover:shadow-xl">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-gradient">
+                {s.image ? (
+                  <Image
+                    src={s.image}
+                    alt={s.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <span className="font-display text-5xl font-bold text-white/90">
+                      {initials(s.name)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Violet gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-violet-950/95 via-violet-900/35 to-transparent" />
+
+                {s.keynote && (
+                  <Badge variant="gold" className="absolute left-3 top-3 z-10 gap-1">
+                    <Mic2 className="size-3" /> Keynote
+                  </Badge>
+                )}
+
+                {/* Name / role / organization overlay */}
+                <div className="absolute inset-x-0 bottom-0 p-4 text-left">
+                  <h3 className="font-semibold leading-tight text-white">{s.name}</h3>
+                  <p className="mt-0.5 text-xs font-medium text-white/85">{s.role}</p>
+                  <p className="text-xs text-violet-200">{s.organization}</p>
+                </div>
+              </div>
+            </Card>
+          </StaggerItem>
+        ))}
+      </Stagger>
+
+      <Reveal className="mt-12 text-center">
+        <p className="mb-4 text-muted-foreground">Want to share your expertise on the ICAFoW stage?</p>
+        <Button asChild variant="gradient" size="lg">
+          <Link href="/register/speaker">
+            Apply to Speak <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </Reveal>
+    </Section>
+  );
+}
