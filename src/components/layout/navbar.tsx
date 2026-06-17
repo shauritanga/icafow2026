@@ -33,7 +33,7 @@ export function Navbar() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-300",
           scrolled
-            ? "border-b border-border bg-background/85 backdrop-blur-lg shadow-sm"
+            ? "border-b border-white/10 bg-[oklch(0.17_0.025_25_/_0.82)] shadow-lg shadow-black/30 backdrop-blur-lg"
             : "bg-transparent"
         )}
       >
@@ -45,10 +45,7 @@ export function Navbar() {
               width={150}
               height={48}
               priority
-              className={cn(
-                "h-9 w-auto transition-all lg:h-11",
-                !scrolled && "drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]"
-              )}
+              className="h-9 w-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] transition-all lg:h-11"
             />
           </Link>
 
@@ -60,7 +57,7 @@ export function Navbar() {
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                   scrolled
-                    ? "text-foreground/80 hover:bg-muted hover:text-primary"
+                    ? "text-white/85 hover:bg-white/10 hover:text-white"
                     : "text-white/90 hover:bg-white/10 hover:text-white"
                 )}
               >
@@ -75,8 +72,7 @@ export function Navbar() {
             </Button>
             <button
               className={cn(
-                "inline-flex size-10 items-center justify-center rounded-lg transition-colors xl:hidden",
-                scrolled ? "text-foreground" : "text-white"
+                "inline-flex size-10 items-center justify-center rounded-lg text-white transition-colors xl:hidden"
               )}
               onClick={() => setOpen((o) => !o)}
               aria-label={open ? "Close menu" : "Open menu"}

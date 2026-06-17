@@ -15,11 +15,13 @@ export const navItems: NavItem[] = [
   { label: "Contact", href: "#contact" },
 ];
 
+// "Get Involved" links point to the on-page sections whose CTAs open the
+// registration modals (forms are modals now, not separate pages).
 export const registrationRoutes = [
-  { type: "attendee", label: "Attendee / Author", href: "/register/attendee" },
-  { type: "sponsor", label: "Sponsor", href: "/register/sponsor" },
-  { type: "exhibitor", label: "Exhibitor", href: "/register/exhibitor" },
-  { type: "partner", label: "Partner", href: "/register/partner" },
-  { type: "speaker", label: "Speaker", href: "/register/speaker" },
-  { type: "pitch", label: "Pitch Competition", href: "/register/pitch" },
+  { type: "attendee", label: "Attendee / Author", href: "#registration" },
+  { type: "sponsor", label: "Sponsor", href: "#sponsorship" },
+  { type: "exhibitor", label: "Exhibitor", href: "#exhibition" },
+  { type: "partner", label: "Partner", href: "#partners" },
+  { type: "speaker", label: "Speaker", href: "#speakers" },
+  { type: "pitch", label: "Pitch Competition", href: "#pitch" },
 ] as const;

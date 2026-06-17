@@ -1,28 +1,28 @@
-import Link from "next/link";
-import Image from "next/image";
 import { Check, ArrowRight, Star } from "lucide-react";
 import { Section, SectionHeading } from "@/components/layout/section";
 import { Stagger, StaggerItem, Reveal } from "@/components/motion/reveal";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { SponsorTierButton } from "@/components/forms/register-triggers";
+import { LogoGrid } from "@/components/sections/logo-grid";
 import { cn, formatCurrency } from "@/lib/utils";
 import { sponsorTiers, sponsorReasons } from "@/lib/content/sponsors";
 import { sponsorLogos } from "@/lib/content/partners";
 
 export function Sponsorship() {
   return (
-    <Section id="sponsorship">
+    <Section id="sponsorship" tone="dark">
       <SectionHeading
+        onDark
         eyebrow="Sponsorship Opportunities"
-        title={<>Be seen. Be heard. <span className="text-gradient-brand">Be remembered.</span></>}
+        title={<>Be seen. Be heard. <span className="text-gradient-light">Be remembered.</span></>}
         description="Position your organization at the forefront of Africa's AI revolution. Gain unparalleled access to policymakers, industry leaders, researchers, investors and emerging talent."
       />
 
       <Reveal className="mx-auto mb-12 grid max-w-4xl gap-3 sm:grid-cols-2">
         {sponsorReasons.map((r) => (
-          <div key={r} className="flex items-start gap-2.5 rounded-lg border border-border bg-card p-3.5 text-sm">
-            <Check className="mt-0.5 size-4 shrink-0 text-secondary" /> {r}
+          <div key={r} className="glow-card flex items-start gap-2.5 rounded-lg p-3.5 text-sm text-white/85">
+            <Check className="mt-0.5 size-4 shrink-0 text-green-light" /> {r}
           </div>
         ))}
       </Reveal>
@@ -32,8 +32,10 @@ export function Sponsorship() {
           <StaggerItem key={tier.id}>
             <Card
               className={cn(
-                "relative flex h-full flex-col p-6 transition-all hover:-translate-y-1 hover:shadow-xl",
-                tier.highlight && "ring-2 ring-gold shadow-lg"
+                "relative flex h-full flex-col p-6 transition-all hover:-translate-y-1",
+                tier.highlight
+                  ? "ring-2 ring-gold shadow-[0_24px_70px_-20px] shadow-gold/50"
+                  : "hover:ring-1 hover:ring-white/20"
               )}
             >
               {tier.highlight && (
@@ -66,43 +68,25 @@ export function Sponsorship() {
                   </li>
                 ))}
               </ul>
-              <Button
-                asChild
+              <SponsorTierButton
+                tierId={tier.id}
                 variant={tier.highlight ? "gradient" : "outline"}
                 size="lg"
                 className="mt-6 w-full"
               >
-                <Link href={`/register/sponsor?tier=${tier.id}`}>
-                  Become a Sponsor <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+                Become a Sponsor <ArrowRight className="size-4" />
+              </SponsorTierButton>
             </Card>
           </StaggerItem>
         ))}
       </Stagger>
 
-      {/* Confirmed sponsors */}
+      {/* Confirmed sponsors — full-width auto-fit grid (scales to any number) */}
       <Reveal className="mt-16">
-        <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
           Our Sponsors
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-          {sponsorLogos.map((org) => (
-            <div
-              key={org.name}
-              className="group flex h-24 w-44 items-center justify-center rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <Image
-                src={org.logo}
-                alt={org.name}
-                title={org.name}
-                width={200}
-                height={100}
-                className="max-h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-          ))}
-        </div>
+        <LogoGrid logos={sponsorLogos} className="mx-auto max-w-4xl justify-center" />
       </Reveal>
     </Section>
   );

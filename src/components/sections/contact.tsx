@@ -62,15 +62,16 @@ export function Contact() {
   }
 
   return (
-    <Section id="contact" muted>
+    <Section id="contact" tone="dark">
       <SectionHeading
+        onDark
         eyebrow="Contact"
-        title={<>Let&apos;s <span className="text-gradient-brand">talk</span></>}
+        title={<>Let&apos;s <span className="text-gradient-light">talk</span></>}
         description="Questions about registration, sponsorship, exhibition or papers? Our team is here to help."
       />
 
       <Reveal>
-        <Card className="overflow-hidden p-0 shadow-xl">
+        <Card className="overflow-hidden p-0 shadow-2xl ring-1 ring-white/10">
           <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
             {/* ── Info rail ────────────────────────────────── */}
             <div className="relative overflow-hidden bg-brand-gradient p-8 text-white sm:p-10">

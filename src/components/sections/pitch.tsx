@@ -1,18 +1,18 @@
-import Link from "next/link";
 import { Trophy, ArrowRight, Rocket } from "lucide-react";
 import { Section, SectionHeading } from "@/components/layout/section";
 import { Reveal } from "@/components/motion/reveal";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PitchApplyButton } from "@/components/forms/register-triggers";
 import { pitchTimeline } from "@/lib/content/dates";
 
 export function Pitch() {
   return (
-    <Section id="pitch" muted>
+    <Section id="pitch" tone="dark">
       <SectionHeading
+        onDark
         eyebrow="Pitch Competition"
-        title={<>The <span className="text-gradient-brand">ICAFoW Future of Work</span> Innovation Award 2026</>}
+        title={<>The <span className="text-gradient-light">ICAFoW Future of Work</span> Innovation Award 2026</>}
         description="Showcasing innovative AI startups and emerging ventures transforming industries, empowering people and shaping the future of work. Finalists pitch on the main stage before an international audience of investors and leaders."
       />
 
@@ -29,11 +29,9 @@ export function Pitch() {
                 startups through live pitches. The top finalists compete on the main stage at the Grand Finale.
               </p>
             </div>
-            <Button asChild variant="white" size="lg" className="mt-8 self-start">
-              <Link href="/register/pitch">
-                Apply Now <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <PitchApplyButton variant="white" size="lg" className="mt-8 self-start">
+              Apply Now <ArrowRight className="size-4" />
+            </PitchApplyButton>
           </Card>
         </Reveal>
 
@@ -46,12 +44,12 @@ export function Pitch() {
             <ol className="relative space-y-6 border-l-2 border-border pl-6">
               {pitchTimeline.map((d, i) => (
                 <li key={d.title} className="relative">
-                  <span className="absolute -left-[31px] flex size-6 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white ring-4 ring-background">
+                  <span className="absolute -left-[31px] flex size-6 items-center justify-center rounded-full bg-brand-gradient text-xs font-bold text-white ring-4 ring-card">
                     {i + 1}
                   </span>
-                  <Badge variant="maroonSoft" className="mb-1">{d.date}</Badge>
-                  <p className="font-semibold">{d.title}</p>
-                  <p className="text-sm text-muted-foreground">{d.description}</p>
+                  <Badge variant="outline" className="mb-1 border-white/15 bg-white/10 text-white/90">{d.date}</Badge>
+                  <p className="font-semibold text-white">{d.title}</p>
+                  <p className="text-sm text-white/60">{d.description}</p>
                 </li>
               ))}
             </ol>

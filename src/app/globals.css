@@ -144,6 +144,13 @@
     background-clip: text;
     color: transparent;
   }
+  /* Light-on-dark emphasis gradient (for headings on dark/gradient surfaces). */
+  .text-gradient-light {
+    background: linear-gradient(100deg, var(--brand-gold), var(--brand-green-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
   .bg-brand-gradient {
     background: linear-gradient(120deg, var(--brand-maroon-dark) 0%, var(--brand-maroon) 45%, var(--brand-green-dark) 100%);
   }
@@ -152,6 +159,69 @@
       radial-gradient(at 0% 0%, color-mix(in oklab, var(--brand-maroon) 22%, transparent) 0px, transparent 45%),
       radial-gradient(at 100% 0%, color-mix(in oklab, var(--brand-green) 18%, transparent) 0px, transparent 45%),
       radial-gradient(at 80% 100%, color-mix(in oklab, var(--brand-gold) 14%, transparent) 0px, transparent 40%);
+  }
+
+  /*
+    Scoped dark surface. Re-declares the semantic tokens to a dark palette for a
+    section subtree WITHOUT enabling global dark mode, so existing token-based
+    components (Card, text-muted-foreground, border-border, inputs) render dark
+    automatically. Mirrors the values in the `.dark` block.
+  */
+  .section-dark {
+    --background: oklch(0.17 0.008 295);
+    --foreground: oklch(0.98 0 0);
+    --card: oklch(0.22 0.008 295);
+    --card-foreground: oklch(0.98 0 0);
+    --popover: oklch(0.2 0.006 295);
+    --popover-foreground: oklch(0.98 0 0);
+    --muted: oklch(0.28 0.008 295);
+    --muted-foreground: oklch(0.74 0.012 286);
+    --accent: oklch(0.28 0.02 150);
+    --accent-foreground: oklch(0.9 0.05 150);
+    --border: oklch(1 0 0 / 12%);
+    --input: oklch(1 0 0 / 18%);
+    --primary: var(--brand-maroon-soft);
+    --secondary: var(--brand-green-light);
+    --ring: var(--brand-maroon-soft);
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  /* Faint tech textures for dark surfaces. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 4%) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 4%) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 55%, transparent 100%);
+  }
+  .bg-dots {
+    background-image: radial-gradient(oklch(1 0 0 / 8%) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Glowing translucent card for dark surfaces. */
+  .glow-card {
+    position: relative;
+    background: oklch(1 0 0 / 3.5%);
+    border: 1px solid oklch(1 0 0 / 10%);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .glow-card:hover {
+    border-color: color-mix(in oklab, var(--brand-maroon-soft) 55%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--brand-maroon-soft) 28%, transparent),
+      0 20px 45px -14px color-mix(in oklab, var(--brand-maroon) 45%, transparent);
+  }
+
+  /* Decorative blurred gradient accent (set color/size/position in markup). */
+  .glow-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.45;
+    pointer-events: none;
   }
 }
 

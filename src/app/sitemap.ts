@@ -5,15 +5,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
   const now = new Date();
 
-  const routes = [
-    "",
-    "/register/attendee",
-    "/register/sponsor",
-    "/register/exhibitor",
-    "/register/partner",
-    "/register/speaker",
-    "/register/pitch",
-  ];
+  // Registration is handled by on-page modals, so the single-page site has one route.
+  const routes = [""];
 
   return routes.map((route) => ({
     url: `${base}${route}`,

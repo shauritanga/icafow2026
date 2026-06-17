@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AttendeeRegisterButton } from "@/components/forms/register-triggers";
 import { Countdown } from "./countdown";
 import { siteConfig } from "@/lib/content/site";
 
@@ -95,14 +96,14 @@ export function Hero() {
                 Register Now <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button
-              asChild
+            <AttendeeRegisterButton
+              initialPass="researcher"
               size="xl"
               variant="outline"
               className="w-full border-white/30 bg-white/5 text-white hover:bg-white/15 hover:text-white sm:w-auto"
             >
-              <Link href="/register/attendee?pass=researcher">Submit a Paper</Link>
-            </Button>
+              Submit a Paper
+            </AttendeeRegisterButton>
           </motion.div>
 
           <motion.div

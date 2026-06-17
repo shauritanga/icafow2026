@@ -1,32 +1,33 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Mic2, ArrowRight } from "lucide-react";
 import { Section, SectionHeading } from "@/components/layout/section";
 import { Stagger, StaggerItem, Reveal } from "@/components/motion/reveal";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { SpeakerApplyButton } from "@/components/forms/register-triggers";
 import { speakers, initials } from "@/lib/content/speakers";
 
 export function Speakers() {
   return (
-    <Section id="speakers" muted>
+    <Section id="speakers" tone="dark">
       <SectionHeading
+        onDark
         eyebrow="Speakers & Keynote Guests"
-        title={<>Learn from <span className="text-gradient-brand">100+ visionary leaders</span></>}
+        title={<>Learn from <span className="text-gradient-light">100+ visionary leaders</span></>}
         description="Ministers, researchers, executives and innovators from across Africa and beyond will share insights on AI and the future of work. Full speaker line-up announced soon."
       />
 
       <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {speakers.map((s) => (
           <StaggerItem key={s.id}>
-            <Card className="group relative h-full overflow-hidden border-violet-300/50 p-0 transition-all hover:-translate-y-1 hover:shadow-xl">
+            <Card className="group relative h-full overflow-hidden border-white/10 p-0 transition-all hover:-translate-y-1 hover:ring-1 hover:ring-white/20">
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-gradient">
                 {s.image ? (
                   <Image
                     src={s.image}
                     alt={s.name}
                     fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
@@ -37,8 +38,8 @@ export function Speakers() {
                   </div>
                 )}
 
-                {/* Violet gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-violet-950/95 via-violet-900/35 to-transparent" />
+                {/* Brand gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-maroon-dark/95 via-maroon/30 to-transparent" />
 
                 {s.keynote && (
                   <Badge variant="gold" className="absolute left-3 top-3 z-10 gap-1">
@@ -50,7 +51,7 @@ export function Speakers() {
                 <div className="absolute inset-x-0 bottom-0 p-4 text-left">
                   <h3 className="font-semibold leading-tight text-white">{s.name}</h3>
                   <p className="mt-0.5 text-xs font-medium text-white/85">{s.role}</p>
-                  <p className="text-xs text-violet-200">{s.organization}</p>
+                  <p className="text-xs text-green-light">{s.organization}</p>
                 </div>
               </div>
             </Card>
@@ -60,11 +61,9 @@ export function Speakers() {
 
       <Reveal className="mt-12 text-center">
         <p className="mb-4 text-muted-foreground">Want to share your expertise on the ICAFoW stage?</p>
-        <Button asChild variant="gradient" size="lg">
-          <Link href="/register/speaker">
-            Apply to Speak <ArrowRight className="size-4" />
-          </Link>
-        </Button>
+        <SpeakerApplyButton variant="gradient" size="lg">
+          Apply to Speak <ArrowRight className="size-4" />
+        </SpeakerApplyButton>
       </Reveal>
     </Section>
   );

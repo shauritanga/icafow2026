@@ -78,7 +78,7 @@ export function eventJsonLd() {
     },
     offers: {
       "@type": "Offer",
-      url: `${siteConfig.url}/register/attendee`,
+      url: `${siteConfig.url}/#registration`,
       price: "200",
       priceCurrency: "USD",
       availability: "https://schema.org/InStock",
