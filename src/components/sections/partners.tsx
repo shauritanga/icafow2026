@@ -38,7 +38,7 @@ export function Partners() {
 
       {/* Logos — full-width auto-fit grid that scales to any number */}
       <div className="mt-16">
-        <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-white/60">
+        <h3 className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
           Our Partners
         </h3>
         <LogoGrid logos={partnerLogos} />

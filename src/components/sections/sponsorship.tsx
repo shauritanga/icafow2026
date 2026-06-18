@@ -86,7 +86,7 @@ export function Sponsorship() {
         <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
           Our Sponsors
         </p>
-        <LogoGrid logos={sponsorLogos} className="mx-auto max-w-4xl justify-center" />
+        <LogoGrid logos={sponsorLogos} />
       </Reveal>
     </Section>
   );

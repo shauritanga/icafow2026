@@ -33,10 +33,17 @@ export function FcmProvider({ children }: { children: React.ReactNode }) {
         // Request permission
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
+          // Register service worker manually to avoid default registration timeouts in Next.js
+          let registration: ServiceWorkerRegistration | undefined;
+          if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+            registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+          }
+
           // Get the FCM token
           const token = await getToken(messaging, {
             // Replace with your actual VAPID Key from Firebase Console -> Cloud Messaging
             vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+            serviceWorkerRegistration: registration,
           });
 
           if (token) {

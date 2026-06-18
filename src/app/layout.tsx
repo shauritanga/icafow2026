@@ -34,7 +34,8 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
+      className={`${inter.variable} ${jakarta.variable} dark h-full antialiased`}
+      data-scroll-behavior="smooth"
     >
       <head>
         <script

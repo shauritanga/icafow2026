@@ -131,7 +131,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
               <Field label="Speaker bio & talk summary" htmlFor="sp-bio" required error={errors.bio?.message}>
                 <Textarea id="sp-bio" rows={5} {...register("bio")} placeholder="A short bio and a summary of your proposed talk (min 30 characters)" aria-invalid={!!errors.bio} />
               </Field>
-              <Field label="Profile Photo (optional)" htmlFor="sp-photo" error={photoError || undefined} className="sm:col-span-2">
+              <Field label="Profile Photo" htmlFor="sp-photo" required error={photoError || errors.photoData?.message} className="sm:col-span-2">
                 <div className="flex items-center gap-4">
                   {photoData && (
                     <div className="size-12 shrink-0 overflow-hidden rounded-full border border-border">
@@ -142,6 +142,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
                     id="sp-photo" 
                     type="file" 
                     accept="image/*" 
+                    required
                     onChange={handleFileChange}
                     className="cursor-pointer file:text-primary file:font-medium file:bg-primary/10 file:border-0 file:rounded-md file:mr-4 file:px-3 file:py-1 hover:file:bg-primary/20"
                   />

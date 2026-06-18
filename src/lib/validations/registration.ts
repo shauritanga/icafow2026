@@ -104,7 +104,7 @@ export const speakerSchema = z.object({
   track: z.string().max(120).optional().or(z.literal("")),
   bio: z.string().min(30, "Please share a short bio (min 30 characters)").max(1500),
   linkedin: z.string().url("Enter a valid URL").optional().or(z.literal("")),
-  photoData: z.string().optional(),
+  photoData: z.string().min(1, "A profile photo is required"),
   consent,
 });
 export type SpeakerInput = z.infer<typeof speakerSchema>;

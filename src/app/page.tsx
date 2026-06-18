@@ -20,7 +20,7 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 overflow-x-hidden">
         <Hero />
         <Stats />
         <About />
