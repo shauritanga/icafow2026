@@ -3,11 +3,14 @@ import { generateReference } from "@/lib/utils";
 import { getPass } from "@/lib/content/passes";
 import { getBooth } from "@/lib/content/booths";
 import { getSponsorTier } from "@/lib/content/sponsors";
+import { processNotificationQueue } from "@/lib/queueProcessor";
 import {
   registrationSchemas,
   type RegistrationTypeKey,
 } from "@/lib/validations/registration";
 import type { RegistrationType, Prisma } from "@prisma/client";
+import { sendRegistrationConfirmation, sendAdminAlert } from "@/lib/email";
+import { sendPushNotification } from "@/lib/fcm";
 
 const typeEnum: Record<RegistrationTypeKey, RegistrationType> = {
   attendee: "ATTENDEE",
@@ -125,6 +128,35 @@ export async function createRegistration(
       },
     });
   }
+
+  // ─── OUTBOX PATTERN: Guaranteed Delivery ───
+  // Instead of dispatching emails directly, we save the jobs to the database queue.
+  const typeLabelStr = packageLabel || typeEnum[type];
+  
+  await prisma.notificationJob.createMany({
+    data: [
+      {
+        type: "EMAIL",
+        payload: { action: "USER_CONFIRMATION", to: email, name: fullName, typeLabel: typeLabelStr },
+      },
+      {
+        type: "EMAIL",
+        payload: { action: "ADMIN_ALERT", name: fullName, email: email, typeLabel: typeLabelStr, reference },
+      },
+      {
+        type: "PUSH",
+        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}` },
+      },
+      {
+        type: "IN_APP",
+        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: "/admin/registrations" },
+      }
+    ]
+  });
+
+  // Trigger processor instantly internally (Environment-Agnostic!)
+  // This removes the need for a complicated fetch call and works locally or on production instantly.
+  processNotificationQueue().catch((err) => console.error("Internal queue processor failed:", err));
 
   return { ok: true, reference, requiresPayment, amount };
 }

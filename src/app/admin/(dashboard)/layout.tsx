@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/admin-shell";
+import { FcmProvider } from "@/components/admin/fcm-provider";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({
   children,
@@ -16,8 +18,11 @@ export default async function AdminLayout({
   });
 
   return (
-    <AdminShell userEmail={session.user.email} userAvatar={dbUser?.avatarData || null}>
-      {children}
-    </AdminShell>
+    <FcmProvider>
+      <AdminShell userEmail={session.user.email} userAvatar={dbUser?.avatarData || null}>
+        {children}
+      </AdminShell>
+      <Toaster position="top-right" richColors />
+    </FcmProvider>
   );
 }

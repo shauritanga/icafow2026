@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { updateProfile } from "@/app/admin/actions";
 import { Camera } from "lucide-react";
+import { toast } from "sonner";
 
 export function ProfileForm({
   defaultName,
@@ -28,7 +29,7 @@ export function ProfileForm({
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
-      alert("Image must be less than 2MB");
+      toast.error("Image must be less than 2MB");
       return;
     }
     const reader = new FileReader();
@@ -42,9 +43,9 @@ export function ProfileForm({
     setLoading(true);
     try {
       await updateProfile({ name, phone, avatarData });
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (e) {
-      alert("Error updating profile");
+      toast.error("Error updating profile");
     } finally {
       setLoading(false);
     }

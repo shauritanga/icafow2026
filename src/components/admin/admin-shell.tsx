@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/admin/exhibitors", label: "Exhibitors", icon: Store },
   { href: "/admin/partners", label: "Partners", icon: Handshake },
   { href: "/admin/pitch", label: "Pitch", icon: Lightbulb },
+  { href: "/admin/users", label: "Admin Users", icon: User },
 ];
 
 export function AdminShell({ userEmail, userAvatar, children }: { userEmail: string; userAvatar?: string | null; children: React.ReactNode }) {

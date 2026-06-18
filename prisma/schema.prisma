@@ -40,6 +40,29 @@ enum Currency {
   TZS
 }
 
+enum NotificationType {
+  EMAIL
+  PUSH
+  IN_APP
+}
+
+enum NotificationStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model NotificationJob {
+  id          String             @id @default(cuid())
+  type        NotificationType
+  status      NotificationStatus @default(PENDING)
+  payload     Json               // Stores { to, subject, body, etc. }
+  errorLog    String?            @db.Text
+  retryCount  Int                @default(0)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
 enum PaymentMethod {
   CARD
   TIGOPESA
@@ -152,6 +175,8 @@ model AdminUser {
   role         String   @default("admin") // admin | staff | viewer
   phone        String?
   avatarData   String?  @db.Text
+  fcmTokens    String[] // Array of push notification tokens
+  inAppNotifications InAppNotification[]
   createdAt    DateTime @default(now())
 }
 
@@ -160,4 +185,19 @@ model SiteSetting {
   id        String   @id @default("global")
   data      Json
   updatedAt DateTime @updatedAt
+}
+
+/// Persistent in-app notifications for admins (the bell icon).
+model InAppNotification {
+  id        String   @id @default(cuid())
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  title     String
+  body      String   @db.Text
+  read      Boolean  @default(false)
+  url       String?  // Optional link
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([read])
 }

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { updateSiteSettings } from "@/app/admin/actions";
+import { toast } from "sonner";
 
 export function SettingsForm({ defaultSettings }: { defaultSettings: any }) {
   const [loading, setLoading] = React.useState(false);
@@ -40,9 +41,9 @@ export function SettingsForm({ defaultSettings }: { defaultSettings: any }) {
     setLoading(true);
     try {
       await updateSiteSettings(formData);
-      alert("Settings saved successfully!");
+      toast.success("Settings saved successfully!");
     } catch (e) {
-      alert("Failed to save settings.");
+      toast.error("Failed to save settings.");
     } finally {
       setLoading(false);
     }
