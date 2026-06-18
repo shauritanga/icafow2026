@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
 import { Field, FormSection } from "@/components/forms/field";
 import { CountryField, ConsentRow, ErrorBanner, SubmitButton } from "@/components/forms/shared";
 import {
@@ -20,6 +21,8 @@ import { booths, type BoothId } from "@/lib/content/booths";
 import { exhibitorSchema, type ExhibitorInput } from "@/lib/validations/registration";
 import { submitRegistration, startPayment } from "@/lib/client/submit";
 import { formatCurrency, cn } from "@/lib/utils";
+
+import { usePathname } from "next/navigation";
 
 export function ExhibitorDialog({
   open,
@@ -38,6 +41,8 @@ export function ExhibitorDialog({
 }
 
 function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const defaultBooth = (booths.find((b) => b.id === initialBooth)?.id ?? "innovation") as BoothId;
 
@@ -63,9 +68,9 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Exhibition"
-        title="Reserve your exhibition booth"
-        subtitle="Showcase your AI solutions to decision-makers across Africa."
+        eyebrow={isAdmin ? "Manual Registration" : "Exhibition"}
+        title={isAdmin ? "Register Exhibitor on Behalf" : "Reserve your exhibition booth"}
+        subtitle={isAdmin ? "Fill in the details below to manually register an exhibitor." : "Showcase your AI solutions to decision-makers across Africa."}
       />
       <ModalBody>
         <ErrorBanner message={serverError} />
@@ -81,20 +86,32 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
           </>
         ) : (
           <FormSection step={1} title="Booth package selection">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {booths.map((b) => (
-                <label key={b.id} className={cn(
-                  "flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
-                  boothId === b.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
-                )}>
-                  <input type="radio" value={b.id} className="sr-only" {...register("boothId")} />
-                  <span className="font-semibold">{b.name}</span>
-                  <span className="text-xs text-muted-foreground">{b.size}</span>
-                  <span className="mt-2 font-display text-lg font-bold text-primary">{formatCurrency(b.priceUSD)}</span>
-                  <span className="text-xs text-muted-foreground">TZS {b.priceTZS.toLocaleString()}</span>
-                </label>
-              ))}
-            </div>
+            {isAdmin ? (
+              <Field label="Booth Type" htmlFor="ex-boothId" required>
+                <Select id="ex-boothId" {...register("boothId")}>
+                  {booths.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} - {formatCurrency(b.priceUSD)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {booths.map((b) => (
+                  <label key={b.id} className={cn(
+                    "flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
+                    boothId === b.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
+                  )}>
+                    <input type="radio" value={b.id} className="sr-only" {...register("boothId")} />
+                    <span className="font-semibold">{b.name}</span>
+                    <span className="text-xs text-muted-foreground">{b.size}</span>
+                    <span className="mt-2 font-display text-lg font-bold text-primary">{formatCurrency(b.priceUSD)}</span>
+                    <span className="text-xs text-muted-foreground">TZS {b.priceTZS.toLocaleString()}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </FormSection>
         )}
 

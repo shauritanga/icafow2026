@@ -20,6 +20,7 @@ import {
 import { speakerSchema, type SpeakerInput } from "@/lib/validations/registration";
 import { submitRegistration } from "@/lib/client/submit";
 import { tracks } from "@/lib/content/tracks";
+import { usePathname } from "next/navigation";
 
 export function SpeakerDialog({
   open,
@@ -36,6 +37,8 @@ export function SpeakerDialog({
 }
 
 function SpeakerForm({ onClose }: { onClose?: () => void }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
   const [photoData, setPhotoData] = React.useState<string | null>(null);
@@ -77,9 +80,9 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Call for Speakers"
-        title="Apply to speak at ICAFoW 2026"
-        subtitle="Share your expertise with an international audience of leaders, researchers and innovators."
+        eyebrow={isAdmin ? "Manual Registration" : "Call for Speakers"}
+        title={isAdmin ? "Register Speaker on Behalf" : "Apply to speak at ICAFoW 2026"}
+        subtitle={isAdmin ? "Fill in the details below to manually register a speaker." : "Share your expertise with an international audience of leaders, researchers and innovators."}
       />
       <ModalBody>
         {reference ? (

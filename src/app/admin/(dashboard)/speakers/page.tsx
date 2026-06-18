@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { verifyRegistration } from "../attendees/actions";
-import { ApproveButton } from "@/components/admin/approve-button";
+import { RegistrationRowActions } from "@/components/admin/registration-actions";
 import { Stagger } from "@/components/motion/reveal";
+import { SpeakerApplyButton } from "@/components/forms/register-triggers";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,11 @@ export default async function SpeakersPage() {
 
   return (
     <Stagger className="h-full">
-      <PageTitle title="Speakers" subtitle="Individuals who have applied to speak at ICAFoW 2026." />
+      <PageTitle 
+        title="Speakers" 
+        subtitle="Individuals who have applied to speak at ICAFoW 2026." 
+        action={<SpeakerApplyButton>Add Speaker</SpeakerApplyButton>}
+      />
       <DataTable headers={["Ref", "Name", "Role", "Organization", "Country", "Amount", "Status", "Date", "Actions"]} rows={speakers.length} empty="No speaker applications yet.">
         {speakers.map((s) => (
           <tr key={s.id}>
@@ -29,9 +33,7 @@ export default async function SpeakersPage() {
             <Td><StatusBadge status={s.status} /></Td>
             <Td className="text-muted-foreground">{formatDate(s.createdAt, { day: "numeric", month: "short" })}</Td>
             <Td>
-              {s.status === "PENDING" && (
-                <ApproveButton id={s.id} onApprove={verifyRegistration} />
-              )}
+              <RegistrationRowActions registration={s} />
             </Td>
           </tr>
         ))}

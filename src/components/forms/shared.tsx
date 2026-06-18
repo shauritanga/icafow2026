@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CountryCombobox } from "@/components/ui/country-combobox";
 import { countries, paymentMethods } from "@/lib/validations/common";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 /** RHF-controlled searchable country selector. */
 export function CountryField<T extends FieldValues>({
@@ -129,8 +130,10 @@ export function SubmitButton({
   children,
   ...props
 }: React.ComponentProps<typeof Button> & { loading?: boolean }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   return (
-    <Button type="submit" variant="gradient" size="lg" disabled={loading} {...props}>
+    <Button type="submit" variant={isAdmin ? "default" : "gradient"} size="lg" disabled={loading} {...props}>
       {loading ? (
         <>
           <Loader2 className="size-4 animate-spin" /> Processing...

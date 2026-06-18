@@ -19,6 +19,8 @@ import {
 import { partnerSchema, type PartnerInput } from "@/lib/validations/registration";
 import { submitRegistration } from "@/lib/client/submit";
 
+import { usePathname } from "next/navigation";
+
 export function PartnerDialog({
   open,
   onOpenChange,
@@ -34,6 +36,8 @@ export function PartnerDialog({
 }
 
 function PartnerForm({ onClose }: { onClose?: () => void }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
   const [logoSource, setLogoSource] = React.useState<"upload" | "url">("upload");
@@ -82,9 +86,9 @@ function PartnerForm({ onClose }: { onClose?: () => void }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Partnership"
-        title="Partner with ICAFoW 2026"
-        subtitle="Join the movement shaping Africa's AI-powered future. Our team will be in touch."
+        eyebrow={isAdmin ? "Manual Registration" : "Partner Application"}
+        title={isAdmin ? "Register Partner on Behalf" : "Become a Partner"}
+        subtitle={isAdmin ? "Fill in the details below to manually register a partner." : "Collaborate with us to shape the future of African agriculture."}
       />
       <ModalBody>
         {reference ? (

@@ -9,6 +9,8 @@ import { LayoutDashboard, Users, CreditCard, FileText, Megaphone, Store, LogOut,
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/content/site";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "@/components/admin/notification-bell";
+import { PushNotificationSetup } from "@/components/admin/push-notification-setup";
 
 const navLinks = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
@@ -41,6 +43,7 @@ export function AdminShell({ userEmail, userAvatar, children }: { userEmail: str
 
   return (
     <div className="flex h-dvh overflow-hidden bg-muted/30">
+      <PushNotificationSetup />
       {/* Sidebar */}
       <aside 
         className={cn(
@@ -149,9 +152,7 @@ export function AdminShell({ userEmail, userAvatar, children }: { userEmail: str
           </div>
           
           <div className="flex items-center gap-3">
-             <Button variant="ghost" size="icon" className="text-muted-foreground rounded-full hover:bg-muted">
-               <Bell className="size-5" />
-             </Button>
+             <NotificationBell />
              <Button variant="ghost" size="icon" className="text-muted-foreground rounded-full hover:bg-muted" onClick={toggleTheme}>
                <SunMoon className="size-5" />
              </Button>

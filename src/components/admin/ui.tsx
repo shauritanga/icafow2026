@@ -4,12 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { cn, formatEnum } from "@/lib/utils";
 import { StaggerItem } from "@/components/motion/reveal";
 
-export function PageTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+export function PageTitle({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
   return (
     <StaggerItem>
-      <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold">{title}</h1>
-        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold">{title}</h1>
+          {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+        </div>
+        {action && <div>{action}</div>}
       </div>
     </StaggerItem>
   );

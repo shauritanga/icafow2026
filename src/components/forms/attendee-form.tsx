@@ -22,6 +22,7 @@ import { passes, type PassId } from "@/lib/content/passes";
 import { tracks } from "@/lib/content/tracks";
 import { attendeeSchema, type AttendeeInput } from "@/lib/validations/registration";
 import { submitRegistration, startPayment } from "@/lib/client/submit";
+import { usePathname } from "next/navigation";
 import { formatCurrency, cn } from "@/lib/utils";
 
 export function AttendeeDialog({
@@ -41,6 +42,8 @@ export function AttendeeDialog({
 }
 
 function AttendeeForm({ initialPass }: { initialPass?: string }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const defaultPass = (passes.find((p) => p.id === initialPass)?.id ?? "delegate") as PassId;
 
@@ -67,9 +70,9 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Attendee / Author Registration"
-        title="Register for ICAFoW 2026"
-        subtitle="Select your pass, tell us about yourself, and complete payment securely."
+        eyebrow={isAdmin ? "Manual Registration" : "Attendee / Author Registration"}
+        title={isAdmin ? "Register Attendee on Behalf" : "Register for ICAFoW 2026"}
+        subtitle={isAdmin ? "Fill in the details below to manually register an attendee." : "Select your pass, tell us about yourself, and complete payment securely."}
       />
       <ModalBody>
         <ErrorBanner message={serverError} />
@@ -85,27 +88,39 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
           </>
         ) : (
           <FormSection step={1} title="Select your pass">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {passes.map((p) => (
-                <label
-                  key={p.id}
-                  className={cn(
-                    "relative flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
-                    passId === p.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
-                  )}
-                >
-                  <input type="radio" value={p.id} className="sr-only" {...register("passId")} />
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold">{p.name}</span>
-                    {p.badge && <Badge variant={p.highlight ? "green" : "soft"}>{p.badge}</Badge>}
-                  </div>
-                  <span className="mt-0.5 text-xs text-muted-foreground">{p.subtitle}</span>
-                  <span className="mt-2 font-display text-xl font-bold text-primary">
-                    {formatCurrency(p.priceUSD)}
-                  </span>
-                </label>
-              ))}
-            </div>
+            {isAdmin ? (
+              <Field label="Pass Type" htmlFor="at-passId" required>
+                <Select id="at-passId" {...register("passId")}>
+                  {passes.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} - {formatCurrency(p.priceUSD)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {passes.map((p) => (
+                  <label
+                    key={p.id}
+                    className={cn(
+                      "relative flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
+                      passId === p.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
+                    )}
+                  >
+                    <input type="radio" value={p.id} className="sr-only" {...register("passId")} />
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold">{p.name}</span>
+                      {p.badge && <Badge variant={p.highlight ? "green" : "soft"}>{p.badge}</Badge>}
+                    </div>
+                    <span className="mt-0.5 text-xs text-muted-foreground">{p.subtitle}</span>
+                    <span className="mt-2 font-display text-xl font-bold text-primary">
+                      {formatCurrency(p.priceUSD)}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </FormSection>
         )}
 

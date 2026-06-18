@@ -41,6 +41,8 @@ export function ModalForm({
   );
 }
 
+import { usePathname } from "next/navigation";
+
 /** Brand-gradient header shared by all registration modals. */
 export function ModalHeader({
   eyebrow,
@@ -51,17 +53,20 @@ export function ModalHeader({
   title: React.ReactNode;
   subtitle?: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   return (
-    <div className="bg-brand-gradient px-6 py-5 pr-14 text-white">
+    <div className={isAdmin ? "border-b border-border bg-muted/30 px-6 py-5 pr-14" : "bg-brand-gradient px-6 py-5 pr-14 text-white"}>
       <DialogHeader>
         {eyebrow && (
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+          <p className={`text-xs font-semibold uppercase tracking-wider ${isAdmin ? "text-muted-foreground" : "text-white/70"}`}>
             {eyebrow}
           </p>
         )}
-        <DialogTitle className="text-white">{title}</DialogTitle>
+        <DialogTitle className={isAdmin ? "text-foreground" : "text-white"}>{title}</DialogTitle>
         {subtitle && (
-          <DialogDescription className="text-white/80">{subtitle}</DialogDescription>
+          <DialogDescription className={isAdmin ? "text-muted-foreground" : "text-white/80"}>{subtitle}</DialogDescription>
         )}
       </DialogHeader>
     </div>

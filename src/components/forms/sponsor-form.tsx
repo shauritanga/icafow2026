@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
 import { Field, FormSection } from "@/components/forms/field";
 import { CountryField, ConsentRow, ErrorBanner, SubmitButton } from "@/components/forms/shared";
 import {
@@ -20,6 +21,8 @@ import { sponsorTiers, type SponsorTierId } from "@/lib/content/sponsors";
 import { sponsorSchema, type SponsorInput } from "@/lib/validations/registration";
 import { submitRegistration, startPayment } from "@/lib/client/submit";
 import { formatCurrency, cn } from "@/lib/utils";
+
+import { usePathname } from "next/navigation";
 
 export function SponsorDialog({
   open,
@@ -38,6 +41,8 @@ export function SponsorDialog({
 }
 
 function SponsorForm({ initialTier }: { initialTier?: string }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [logoSource, setLogoSource] = React.useState<"upload" | "url">("upload");
   const [logoFileError, setLogoFileError] = React.useState<string | null>(null);
@@ -91,9 +96,9 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Sponsorship"
-        title="Become an ICAFoW 2026 Sponsor"
-        subtitle="Position your organization at the forefront of Africa's AI revolution."
+        eyebrow={isAdmin ? "Manual Registration" : "Sponsorship"}
+        title={isAdmin ? "Register Sponsor on Behalf" : "Become an ICAFoW 2026 Sponsor"}
+        subtitle={isAdmin ? "Fill in the details below to manually register a sponsor." : "Position your organization at the forefront of Africa's AI revolution."}
       />
       <ModalBody>
         <ErrorBanner message={serverError} />
@@ -109,20 +114,32 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
           </>
         ) : (
           <FormSection step={1} title="Choose a sponsorship tier">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {sponsorTiers.map((t) => (
-                <label key={t.id} className={cn(
-                  "flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
-                  tierId === t.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
-                )}>
-                  <input type="radio" value={t.id} className="sr-only" {...register("tierId")} />
-                  <span className="font-semibold">{t.name}</span>
-                  <span className="mt-1 font-display text-lg font-bold text-primary">
-                    {t.priceUSD == null ? "By negotiation" : formatCurrency(t.priceUSD)}
-                  </span>
-                </label>
-              ))}
-            </div>
+            {isAdmin ? (
+              <Field label="Sponsorship Tier" htmlFor="so-tierId" required>
+                <Select id="so-tierId" {...register("tierId")}>
+                  {sponsorTiers.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} - {t.priceUSD == null ? "By negotiation" : formatCurrency(t.priceUSD)}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {sponsorTiers.map((t) => (
+                  <label key={t.id} className={cn(
+                    "flex cursor-pointer flex-col rounded-xl border p-4 transition-all",
+                    tierId === t.id ? "border-primary bg-accent/40 ring-1 ring-primary" : "border-input hover:border-primary/40"
+                  )}>
+                    <input type="radio" value={t.id} className="sr-only" {...register("tierId")} />
+                    <span className="font-semibold">{t.name}</span>
+                    <span className="mt-1 font-display text-lg font-bold text-primary">
+                      {t.priceUSD == null ? "By negotiation" : formatCurrency(t.priceUSD)}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </FormSection>
         )}
 

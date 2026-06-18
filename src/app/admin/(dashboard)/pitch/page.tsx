@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { verifyRegistration } from "../attendees/actions";
-import { ApproveButton } from "@/components/admin/approve-button";
+import { RegistrationRowActions } from "@/components/admin/registration-actions";
 import { Stagger } from "@/components/motion/reveal";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { PitchApplyButton } from "@/components/forms/register-triggers";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,11 @@ export default async function PitchPage() {
 
   return (
     <Stagger className="h-full">
-      <PageTitle title="Pitch Competition" subtitle="Startups applying for the pitch competition." />
+      <PageTitle 
+        title="Pitch Competition" 
+        subtitle="Startups applying for the pitch competition." 
+        action={<PitchApplyButton>Add Startup</PitchApplyButton>}
+      />
       <DataTable headers={["Ref", "Startup", "Founder", "Email", "Country", "Status", "Date", "Actions"]} rows={pitchEntries.length} empty="No pitch applications yet.">
         {pitchEntries.map((p) => (
           <tr key={p.id}>
@@ -28,9 +32,7 @@ export default async function PitchPage() {
             <Td><StatusBadge status={p.status} /></Td>
             <Td className="text-muted-foreground">{formatDate(p.createdAt, { day: "numeric", month: "short" })}</Td>
             <Td>
-              {p.status === "PENDING" && (
-                <ApproveButton id={p.id} onApprove={verifyRegistration} />
-              )}
+              <RegistrationRowActions registration={p} />
             </Td>
           </tr>
         ))}

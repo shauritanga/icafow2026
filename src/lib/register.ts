@@ -133,6 +133,17 @@ export async function createRegistration(
   // Instead of dispatching emails directly, we save the jobs to the database queue.
   const typeLabelStr = packageLabel || typeEnum[type];
   
+  // Map registration types to admin dashboard routes
+  const urlMap: Record<RegistrationTypeKey, string> = {
+    attendee: "/admin/attendees",
+    sponsor: "/admin/sponsors",
+    exhibitor: "/admin/exhibitors",
+    partner: "/admin/partners",
+    speaker: "/admin/speakers",
+    pitch: "/admin/pitch",
+  };
+  const targetUrl = urlMap[type] || "/admin";
+
   await prisma.notificationJob.createMany({
     data: [
       {
@@ -145,11 +156,11 @@ export async function createRegistration(
       },
       {
         type: "PUSH",
-        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}` },
+        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
       },
       {
         type: "IN_APP",
-        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: "/admin/registrations" },
+        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
       }
     ]
   });

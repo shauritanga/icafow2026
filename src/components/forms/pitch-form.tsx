@@ -27,6 +27,8 @@ const stages = [
   { value: "growth", label: "Growth / Scaling" },
 ];
 
+import { usePathname } from "next/navigation";
+
 export function PitchDialog({
   open,
   onOpenChange,
@@ -42,6 +44,8 @@ export function PitchDialog({
 }
 
 function PitchForm({ onClose }: { onClose?: () => void }) {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
 
@@ -63,9 +67,9 @@ function PitchForm({ onClose }: { onClose?: () => void }) {
   return (
     <ModalForm onSubmit={handleSubmit(onSubmit)}>
       <ModalHeader
-        eyebrow="Pitch Competition"
-        title="Apply for the ICAFoW 2026 Pitch Competition"
-        subtitle="Compete for the ICAFoW Future of Work Innovation Award 2026."
+        eyebrow={isAdmin ? "Manual Registration" : "Pitch Competition"}
+        title={isAdmin ? "Register Pitch on Behalf" : "Apply for the ICAFoW 2026 Pitch Competition"}
+        subtitle={isAdmin ? "Fill in the details below to manually register a pitch application." : "Compete for the ICAFoW Future of Work Innovation Award 2026."}
       />
       <ModalBody>
         {reference ? (

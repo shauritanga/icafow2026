@@ -38,3 +38,41 @@ export async function updateSiteSettings(data: any) {
   revalidatePath("/", "layout");
   return { success: true };
 }
+
+export async function deleteRegistration(id: string, path: string) {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  await prisma.registration.delete({ where: { id } });
+  revalidatePath(path);
+  return { success: true };
+}
+
+export async function updateRegistrationStatus(id: string, status: "PENDING" | "CONFIRMED" | "CANCELLED" | "WAITLISTED", path: string) {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  await prisma.registration.update({
+    where: { id },
+    data: { status },
+  });
+  revalidatePath(path);
+  return { success: true };
+}
+
+export async function updateRegistration(id: string, data: { fullName: string; email: string; phone?: string; organization?: string }, path: string) {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  await prisma.registration.update({
+    where: { id },
+    data: {
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone,
+      organization: data.organization,
+    },
+  });
+  revalidatePath(path);
+  return { success: true };
+}
