@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { PaymentStatus } from "@/components/payment/payment-status";
 import { isSelcomMock } from "@/lib/selcom/config";
-import { siteConfig } from "@/lib/content/site";
+import { getSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: "Payment Status",
@@ -14,6 +14,7 @@ export default async function PaymentPage(props: {
   params: Promise<{ ref: string }>;
 }) {
   const { ref } = await props.params;
+  const siteConfig = await getSiteSettings();
 
   return (
     <div className="flex min-h-dvh flex-col bg-muted/30">

@@ -13,30 +13,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/misc";
 import { contactSchema, type ContactInput } from "@/lib/validations/contact";
-import { siteConfig } from "@/lib/content/site";
-
-const details = [
-  {
-    icon: MapPin,
-    label: "Address",
-    value: `${siteConfig.contact.address} · ${siteConfig.contact.poBox}`,
-  },
-  {
-    icon: Mail,
-    label: "Email",
-    value: siteConfig.contact.email,
-    href: `mailto:${siteConfig.contact.email}`,
-  },
-  {
-    icon: Phone,
-    label: "Phone",
-    value: siteConfig.contact.phone,
-    href: `tel:${siteConfig.contact.phone}`,
-  },
-  { icon: Clock, label: "Working Hours", value: siteConfig.contact.hours },
-];
+import { useSiteSettings } from "@/components/site-provider";
 
 export function Contact() {
+  const siteConfig = useSiteSettings();
+  
+  const details = [
+    {
+      icon: MapPin,
+      label: "Address",
+      value: `${siteConfig.contact.address} · ${siteConfig.contact.poBox}`,
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: siteConfig.contact.email,
+      href: `mailto:${siteConfig.contact.email}`,
+    },
+    {
+      icon: Phone,
+      label: "Phone",
+      value: siteConfig.contact.phone,
+      href: `tel:${siteConfig.contact.phone}`,
+    },
+    { icon: Clock, label: "Working Hours", value: siteConfig.contact.hours },
+  ];
+
   const [done, setDone] = React.useState(false);
   const {
     register,

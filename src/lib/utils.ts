@@ -32,3 +32,9 @@ export function formatDate(date: Date | string, opts?: Intl.DateTimeFormatOption
     ...opts,
   }).format(new Date(date));
 }
+
+/** Convert uppercase string to title case (e.g., SPEAKER -> Speaker) */
+export function formatEnum(val: string) {
+  if (!val) return "";
+  return val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+}

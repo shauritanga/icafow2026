@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { siteConfig } from "@/lib/content/site";
+import { getSiteSettings } from "@/lib/settings";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { approxTZS } from "@/lib/rate";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +19,7 @@ export default async function InvoicePage(props: {
   params: Promise<{ ref: string }>;
 }) {
   const { ref } = await props.params;
+  const siteConfig = await getSiteSettings();
 
   const registration = await prisma.registration.findUnique({
     where: { reference: ref },

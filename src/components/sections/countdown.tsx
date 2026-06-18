@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { siteConfig } from "@/lib/content/site";
+import { useSiteSettings } from "@/components/site-provider";
 
 function diff(target: number) {
   const now = Date.now();
@@ -15,9 +15,10 @@ function diff(target: number) {
 }
 
 export function Countdown({ light = false }: { light?: boolean }) {
+  const siteConfig = useSiteSettings();
   const target = React.useMemo(
     () => new Date(siteConfig.dates.startISO).getTime(),
-    []
+    [siteConfig.dates.startISO]
   );
   const [t, setT] = React.useState(() => diff(target));
 

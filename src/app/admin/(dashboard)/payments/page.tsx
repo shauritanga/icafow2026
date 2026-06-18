@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge, StatCard } from "@/components/admin/ui";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CreditCard, DollarSign, Clock } from "lucide-react";
+import { Stagger } from "@/components/motion/reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export default async function PaymentsPage() {
   ]);
 
   return (
-    <>
+    <Stagger className="h-full">
       <PageTitle title="Payments" subtitle="Monitor Selcom transactions and reconcile registrations." />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <StatCard label="Collected" value={formatCurrency(paidAgg._sum.amount ?? 0)} icon={DollarSign} />
@@ -39,6 +40,6 @@ export default async function PaymentsPage() {
           </tr>
         ))}
       </DataTable>
-    </>
+    </Stagger>
   );
 }

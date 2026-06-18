@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
 import { formatDate } from "@/lib/utils";
+import { Stagger } from "@/components/motion/reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default async function PapersPage() {
   });
 
   return (
-    <>
+    <Stagger className="h-full">
       <PageTitle title="Paper Submissions" subtitle="Research papers submitted with the Researcher Pass." />
       <DataTable headers={["Title", "Author", "Track", "Status", "Submitted"]} rows={papers.length} empty="No papers submitted yet.">
         {papers.map((p) => (
@@ -25,6 +26,6 @@ export default async function PapersPage() {
           </tr>
         ))}
       </DataTable>
-    </>
+    </Stagger>
   );
 }

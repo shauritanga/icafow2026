@@ -1,7 +1,7 @@
 /** About content — verbatim from the source document. */
 
 export const aboutIntro =
-  "The International Conference on AI & the Future of Work (ICAFoW) is a pioneering initiative that harmonizes the dynamic landscape of the future of work with the cutting-edge advancements in Artificial Intelligence. It provides a unique platform to explore, deliberate and strategize the intersection of AI, technology and the evolving nature of work — fostering insightful discussions, showcasing practical applications and catalyzing collaborative efforts to shape a progressive and sustainable future.";
+  "The International Conference on AI & the Future of Work (ICAFoW) is a pioneering initiative that harmonizes the dynamic landscape of the future of work with the cutting-edge advancements in Artificial Intelligence. It provides a unique platform to explore, deliberate and strategize the intersection of AI, technology and the evolving nature of work, fostering insightful discussions, showcasing practical applications and catalyzing collaborative efforts to shape a progressive and sustainable future.";
 
 export interface Objective {
   title: string;

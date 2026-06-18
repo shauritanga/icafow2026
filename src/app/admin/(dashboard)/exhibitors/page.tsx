@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { Stagger } from "@/components/motion/reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default async function ExhibitorsPage() {
   });
 
   return (
-    <>
+    <Stagger className="h-full">
       <PageTitle title="Exhibitors" subtitle="Organizations that have reserved exhibition booths." />
       <DataTable headers={["Ref", "Organization", "Booth", "Contact", "Email", "Amount", "Status", "Date"]} rows={exhibitors.length} empty="No exhibitor registrations yet.">
         {exhibitors.map((e) => (
@@ -28,6 +29,6 @@ export default async function ExhibitorsPage() {
           </tr>
         ))}
       </DataTable>
-    </>
+    </Stagger>
   );
 }

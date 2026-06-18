@@ -8,9 +8,10 @@ import { Menu, X, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { navItems } from "@/lib/content/nav";
-import { siteConfig } from "@/lib/content/site";
+import { useSiteSettings } from "@/components/site-provider";
 
 export function Navbar() {
+  const siteConfig = useSiteSettings();
   const [scrolled, setScrolled] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const { scrollY } = useScroll();

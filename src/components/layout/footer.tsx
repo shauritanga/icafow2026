@@ -1,19 +1,23 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
-import { siteConfig } from "@/lib/content/site";
+import { useSiteSettings } from "@/components/site-provider";
 import { navItems, registrationRoutes } from "@/lib/content/nav";
 import { LinkedinIcon, TwitterIcon, FacebookIcon, InstagramIcon, YoutubeIcon } from "@/components/social-icons";
 
-const socialIcons = [
-  { icon: LinkedinIcon, href: siteConfig.socials.linkedin, label: "LinkedIn" },
-  { icon: TwitterIcon, href: siteConfig.socials.twitter, label: "Twitter / X" },
-  { icon: FacebookIcon, href: siteConfig.socials.facebook, label: "Facebook" },
-  { icon: InstagramIcon, href: siteConfig.socials.instagram, label: "Instagram" },
-  { icon: YoutubeIcon, href: siteConfig.socials.youtube, label: "YouTube" },
-];
-
 export function Footer() {
+  const siteConfig = useSiteSettings();
+
+  const socialIcons = [
+    { icon: LinkedinIcon, href: siteConfig.socials.linkedin, label: "LinkedIn" },
+    { icon: TwitterIcon, href: siteConfig.socials.twitter, label: "Twitter / X" },
+    { icon: FacebookIcon, href: siteConfig.socials.facebook, label: "Facebook" },
+    { icon: InstagramIcon, href: siteConfig.socials.instagram, label: "Instagram" },
+    { icon: YoutubeIcon, href: siteConfig.socials.youtube, label: "YouTube" },
+  ];
+
   return (
     <footer className="bg-maroon-dark text-white">
       <div className="container-edge py-16">

@@ -38,15 +38,35 @@ export function SpeakerDialog({
 function SpeakerForm({ onClose }: { onClose?: () => void }) {
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
+  const [photoData, setPhotoData] = React.useState<string | null>(null);
+  const [photoError, setPhotoError] = React.useState<string | null>(null);
 
   const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<SpeakerInput>({
     resolver: zodResolver(speakerSchema),
     defaultValues: { country: "" },
   });
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setPhotoError("Image must be less than 2MB");
+      return;
+    }
+    setPhotoError(null);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setPhotoData(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   async function onSubmit(data: SpeakerInput) {
     setServerError(null);
     try {
+      if (photoData) {
+        data.photoData = photoData;
+      }
       const { reference } = await submitRegistration("speaker", data);
       setReference(reference);
     } catch (e) {
@@ -110,6 +130,23 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
               </Field>
               <Field label="Speaker bio & talk summary" htmlFor="sp-bio" required error={errors.bio?.message}>
                 <Textarea id="sp-bio" rows={5} {...register("bio")} placeholder="A short bio and a summary of your proposed talk (min 30 characters)" aria-invalid={!!errors.bio} />
+              </Field>
+              <Field label="Profile Photo (optional)" htmlFor="sp-photo" error={photoError || undefined} className="sm:col-span-2">
+                <div className="flex items-center gap-4">
+                  {photoData && (
+                    <div className="size-12 shrink-0 overflow-hidden rounded-full border border-border">
+                      <img src={photoData} alt="Preview" className="size-full object-cover" />
+                    </div>
+                  )}
+                  <Input 
+                    id="sp-photo" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileChange}
+                    className="cursor-pointer file:text-primary file:font-medium file:bg-primary/10 file:border-0 file:rounded-md file:mr-4 file:px-3 file:py-1 hover:file:bg-primary/20"
+                  />
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Used for the speakers section on the website. Max size 2MB.</p>
               </Field>
             </FormSection>
 

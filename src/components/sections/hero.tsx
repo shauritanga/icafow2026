@@ -6,9 +6,11 @@ import { CalendarDays, MapPin, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AttendeeRegisterButton } from "@/components/forms/register-triggers";
 import { Countdown } from "./countdown";
-import { siteConfig } from "@/lib/content/site";
+import { useSiteSettings } from "@/components/site-provider";
 
 export function Hero() {
+  const siteConfig = useSiteSettings();
+  
   return (
     <section
       id="hero"
@@ -67,7 +69,7 @@ export function Hero() {
             className="mx-auto mt-6 max-w-2xl text-pretty text-base text-white/80 sm:text-lg"
           >
             Join 1,000+ leaders, researchers and innovators at the International
-            Conference on AI &amp; the Future of Work — exploring how artificial
+            Conference on AI &amp; the Future of Work, exploring how artificial
             intelligence is transforming industries, economies and societies.
           </motion.p>
 

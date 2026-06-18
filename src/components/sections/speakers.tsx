@@ -5,9 +5,31 @@ import { Stagger, StaggerItem, Reveal } from "@/components/motion/reveal";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SpeakerApplyButton } from "@/components/forms/register-triggers";
-import { speakers, initials } from "@/lib/content/speakers";
+import { speakers as placeholderSpeakers, initials, type Speaker } from "@/lib/content/speakers";
+import { prisma } from "@/lib/prisma";
 
-export function Speakers() {
+export async function Speakers() {
+  const dbRegistrations = await prisma.registration.findMany({
+    where: { type: "SPEAKER", status: "CONFIRMED" },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const dynamicSpeakers: Speaker[] = dbRegistrations.map((r) => {
+    const details = r.details as any;
+    return {
+      id: r.id,
+      name: r.fullName,
+      role: r.jobTitle || "",
+      organization: r.organization || "",
+      country: r.country || "",
+      topic: details?.topic,
+      image: details?.photoData || null,
+      keynote: false,
+    };
+  });
+
+  const allSpeakers = [...dynamicSpeakers, ...placeholderSpeakers];
+
   return (
     <Section id="speakers" tone="dark">
       <SectionHeading
@@ -18,7 +40,7 @@ export function Speakers() {
       />
 
       <Stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {speakers.map((s) => (
+        {allSpeakers.map((s) => (
           <StaggerItem key={s.id}>
             <Card className="group relative h-full overflow-hidden border-white/10 p-0 transition-all hover:-translate-y-1 hover:ring-1 hover:ring-white/20">
               <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-gradient">

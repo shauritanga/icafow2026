@@ -2,11 +2,13 @@
 
 import { Mic, Building2, Layers, Users, Store } from "lucide-react";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
-import { siteConfig } from "@/lib/content/site";
+import { useSiteSettings } from "@/components/site-provider";
 
 const icons = [Mic, Building2, Layers, Users, Store];
 
 export function Stats() {
+  const siteConfig = useSiteSettings();
+  
   return (
     <section className="section-dark relative z-20 -mt-px overflow-hidden border-y border-white/10">
       <div className="pointer-events-none absolute inset-0 bg-mesh opacity-50" aria-hidden />

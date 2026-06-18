@@ -150,5 +150,14 @@ model AdminUser {
   name         String?
   passwordHash String
   role         String   @default("admin") // admin | staff | viewer
+  phone        String?
+  avatarData   String?  @db.Text
   createdAt    DateTime @default(now())
+}
+
+/// Global dynamic configuration (socials, contact info).
+model SiteSetting {
+  id        String   @id @default("global")
+  data      Json
+  updatedAt DateTime @updatedAt
 }

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { baseMetadata, eventJsonLd } from "@/lib/seo";
+import { getSiteSettings } from "@/lib/settings";
+import { SiteProvider } from "@/components/site-provider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -24,9 +26,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html
       lang="en"
@@ -38,7 +42,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd()) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SiteProvider settings={settings}>
+          {children}
+        </SiteProvider>
+      </body>
     </html>
   );
 }
