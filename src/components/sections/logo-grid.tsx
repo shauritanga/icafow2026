@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 import type { OrgLogo } from "@/lib/content/partners";
 
@@ -26,7 +26,7 @@ export function LogoGrid({
       <div className="animate-infinite-scroll flex w-max items-center gap-16 py-6">
         {doubledLogos.map((org, i) => (
           <div key={`${org.name}-${i}`} className="flex w-[250px] shrink-0 items-center justify-center transition-all hover:scale-105">
-            <Image
+            <img
               src={org.logo}
               alt={org.name}
               title={org.name}

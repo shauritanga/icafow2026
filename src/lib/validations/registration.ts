@@ -56,6 +56,18 @@ export const sponsorSchema = z.object({
   jobTitle: z.string().max(120).optional().or(z.literal("")),
   country: z.string().min(2, "Select your country"),
   objectives: z.string().max(1500).optional().or(z.literal("")),
+  logoUrl: z
+    .string()
+    .min(1, "Logo is required")
+    .refine((val) => {
+      if (val.startsWith("data:")) return true;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Must be a valid URL or image file"),
   method: z.enum(methods).optional(),
   consent,
 });
@@ -86,7 +98,18 @@ export const partnerSchema = z.object({
   organization: z.string().min(2, "Organization is required").max(160),
   email: emailField,
   phone: phoneField,
-  logoUrl: z.string().url().optional().or(z.literal("")),
+  logoUrl: z
+    .string()
+    .min(1, "Logo is required")
+    .refine((val) => {
+      if (val.startsWith("data:")) return true;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Must be a valid URL or image file"),
   summary: z.string().min(20, "Tell us why you'd like to partner (min 20 characters)").max(1500),
   consent,
 });

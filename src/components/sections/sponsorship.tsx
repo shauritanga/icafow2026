@@ -7,9 +7,33 @@ import { SponsorTierButton } from "@/components/forms/register-triggers";
 import { LogoGrid } from "@/components/sections/logo-grid";
 import { cn, formatCurrency } from "@/lib/utils";
 import { sponsorTiers, sponsorReasons } from "@/lib/content/sponsors";
-import { sponsorLogos } from "@/lib/content/partners";
+import { prisma } from "@/lib/prisma";
 
-export function Sponsorship() {
+export async function Sponsorship() {
+  const approved = await prisma.registration.findMany({
+    where: {
+      type: "SPONSOR",
+      status: "CONFIRMED",
+    },
+    select: {
+      organization: true,
+      details: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const dbLogos = approved
+    .map((s) => {
+      const details = s.details as { logoUrl?: string } | null;
+      return {
+        name: s.organization || "Sponsor",
+        logo: details?.logoUrl || "",
+      };
+    })
+    .filter((s) => s.logo !== "");
+
   return (
     <Section id="sponsorship" tone="dark">
       <SectionHeading
@@ -86,7 +110,14 @@ export function Sponsorship() {
         <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
           Our Sponsors
         </p>
-        <LogoGrid logos={sponsorLogos} />
+        {dbLogos.length > 0 ? (
+          <LogoGrid logos={dbLogos} />
+        ) : (
+          <div className="py-12 text-center border border-white/10 rounded-2xl bg-white/5">
+            <h3 className="text-xl font-semibold text-white">Sponsors Coming Soon</h3>
+            <p className="text-white/60 mt-2">We are currently reviewing partnerships and will announce our sponsors shortly.</p>
+          </div>
+        )}
       </Reveal>
     </Section>
   );

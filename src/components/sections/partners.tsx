@@ -3,9 +3,34 @@ import { Section, SectionHeading } from "@/components/layout/section";
 import { Reveal } from "@/components/motion/reveal";
 import { PartnerApplyButton } from "@/components/forms/register-triggers";
 import { LogoGrid } from "@/components/sections/logo-grid";
-import { partnerLogos, partnerReasons } from "@/lib/content/partners";
+import { partnerReasons } from "@/lib/content/partners";
+import { prisma } from "@/lib/prisma";
 
-export function Partners() {
+export async function Partners() {
+  const approved = await prisma.registration.findMany({
+    where: {
+      type: "PARTNER",
+      status: "CONFIRMED",
+    },
+    select: {
+      organization: true,
+      details: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const dbLogos = approved
+    .map((p) => {
+      const details = p.details as { logoUrl?: string } | null;
+      return {
+        name: p.organization || "Partner",
+        logo: details?.logoUrl || "",
+      };
+    })
+    .filter((p) => p.logo !== "");
+
   return (
     <Section id="partners" tone="dark">
       <SectionHeading
@@ -37,12 +62,14 @@ export function Partners() {
       </Reveal>
 
       {/* Logos — full-width auto-fit grid that scales to any number */}
-      <div className="mt-16">
-        <h3 className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
-          Our Partners
-        </h3>
-        <LogoGrid logos={partnerLogos} />
-      </div>
+      {dbLogos.length > 0 && (
+        <div className="mt-16">
+          <h3 className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-white/60">
+            Our Partners
+          </h3>
+          <LogoGrid logos={dbLogos} />
+        </div>
+      )}
     </Section>
   );
 }

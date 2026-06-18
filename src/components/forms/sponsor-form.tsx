@@ -39,16 +39,43 @@ export function SponsorDialog({
 
 function SponsorForm({ initialTier }: { initialTier?: string }) {
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [logoSource, setLogoSource] = React.useState<"upload" | "url">("upload");
+  const [logoFileError, setLogoFileError] = React.useState<string | null>(null);
   const defaultTier = (sponsorTiers.find((t) => t.id === initialTier)?.id ?? "platinum") as SponsorTierId;
 
-  const { register, handleSubmit, watch, control, formState: { errors, isSubmitting } } = useForm<SponsorInput>({
+  const { register, handleSubmit, watch, setValue, trigger, control, formState: { errors, isSubmitting } } = useForm<SponsorInput>({
     resolver: zodResolver(sponsorSchema),
     defaultValues: { tierId: defaultTier, country: "" },
   });
 
   const tierId = watch("tierId");
+  const logoUrlValue = watch("logoUrl");
   const selected = sponsorTiers.find((t) => t.id === tierId)!;
   const negotiated = selected.priceUSD == null;
+
+  const handleToggle = (source: "upload" | "url") => {
+    setLogoSource(source);
+    setValue("logoUrl", "");
+    setLogoFileError(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoFileError("Logo image must be less than 2MB");
+      setValue("logoUrl", "");
+      return;
+    }
+    setLogoFileError(null);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setValue("logoUrl", base64);
+      trigger("logoUrl");
+    };
+    reader.readAsDataURL(file);
+  };
 
   async function onSubmit(data: SponsorInput) {
     setServerError(null);
@@ -125,6 +152,56 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
             <Field label="Sponsorship objectives" htmlFor="so-objectives" className="sm:col-span-2" error={errors.objectives?.message}>
               <Textarea id="so-objectives" rows={4} {...register("objectives")} placeholder="What do you hope to achieve as a sponsor? (optional)" />
             </Field>
+            <Field label="Logo Option" required className="sm:col-span-2">
+              <div className="mt-1 flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleToggle("upload")}
+                  className={`flex-1 rounded-lg border p-3 text-center text-sm font-medium transition-all cursor-pointer ${
+                    logoSource === "upload"
+                      ? "border-primary bg-primary/10 text-white font-bold"
+                      : "border-border bg-background/50 text-muted-foreground hover:bg-background/80"
+                  }`}
+                >
+                  Upload from Device
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleToggle("url")}
+                  className={`flex-1 rounded-lg border p-3 text-center text-sm font-medium transition-all cursor-pointer ${
+                    logoSource === "url"
+                      ? "border-primary bg-primary/10 text-white font-bold"
+                      : "border-border bg-background/50 text-muted-foreground hover:bg-background/80"
+                  }`}
+                >
+                  Paste Image URL
+                </button>
+              </div>
+            </Field>
+
+            {logoSource === "upload" ? (
+              <Field label="Upload Logo File" htmlFor="so-logoFile" required error={logoFileError || errors.logoUrl?.message} className="sm:col-span-2" hint="PNG, JPG, SVG (Max 2MB).">
+                <div className="flex items-center gap-4">
+                  {logoUrlValue && logoUrlValue.startsWith("data:") && (
+                    <div className="size-12 shrink-0 overflow-hidden rounded-lg border border-border bg-white p-1">
+                      <img src={logoUrlValue} alt="Preview" className="size-full object-contain" />
+                    </div>
+                  )}
+                  <Input 
+                    id="so-logoFile" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileChange}
+                    className="cursor-pointer file:text-primary file:font-medium file:bg-primary/10 file:border-0 file:rounded-md file:mr-4 file:px-3 file:py-1 hover:file:bg-primary/20"
+                    aria-invalid={!!logoFileError || !!errors.logoUrl}
+                  />
+                </div>
+              </Field>
+            ) : (
+              <Field label="Logo URL" htmlFor="so-logoUrl" required error={errors.logoUrl?.message} className="sm:col-span-2" hint="Link to your organization logo (PNG, JPG or SVG).">
+                <Input id="so-logoUrl" {...register("logoUrl")} placeholder="https://example.com/logo.png" aria-invalid={!!errors.logoUrl} />
+              </Field>
+            )}
           </div>
         </FormSection>
 
