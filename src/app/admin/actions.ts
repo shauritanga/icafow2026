@@ -45,6 +45,7 @@ export async function deleteRegistration(id: string, path: string) {
 
   await prisma.registration.delete({ where: { id } });
   revalidatePath(path);
+  revalidatePath("/");
   return { success: true };
 }
 
@@ -57,6 +58,7 @@ export async function updateRegistrationStatus(id: string, status: "PENDING" | "
     data: { status },
   });
   revalidatePath(path);
+  revalidatePath("/");
   return { success: true };
 }
 
@@ -69,10 +71,11 @@ export async function updateRegistration(id: string, data: { fullName: string; e
     data: {
       fullName: data.fullName,
       email: data.email,
-      phone: data.phone,
-      organization: data.organization,
+      phone: data.phone || null,
+      organization: data.organization || null,
     },
   });
   revalidatePath(path);
+  revalidatePath("/");
   return { success: true };
 }
