@@ -4,6 +4,7 @@
  */
 
 export type PassId =
+  | "virtual"
   | "delegate"
   | "researcher"
   | "vip"
@@ -27,6 +28,22 @@ export interface Pass {
 }
 
 export const passes: Pass[] = [
+  {
+    id: "virtual",
+    name: "Virtual Pass",
+    subtitle: "Online Conference Access",
+    priceUSD: 50,
+    tagline: "Ideal for students and professionals looking to participate in the conference virtually from anywhere.",
+    accent: "green",
+    ctaLabel: "Register Now",
+    image: "/assets/pass-delegate.png", // Fallback to delegate image
+    features: [
+      "Access to live streams of main conference sessions",
+      "Digital conference materials",
+      "Virtual networking opportunities",
+      "E-Certificate of Participation",
+    ],
+  },
   {
     id: "delegate",
     name: "Delegate Pass",

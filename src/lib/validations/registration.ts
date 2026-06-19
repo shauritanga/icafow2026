@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { nameField, emailField, phoneField } from "./common";
 
-const passIds = ["delegate", "researcher", "vip", "vvip", "safari"] as const;
+const passIds = ["virtual", "delegate", "researcher", "vip", "vvip", "safari"] as const;
 const boothIds = ["innovation", "leadership"] as const;
 const tierIds = ["strategic", "platinum", "gold", "silver", "bronze"] as const;
 const methods = ["card", "tigopesa", "mpesa", "airtelmoney"] as const;
