@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/content/site";
 
-const ogImage = "/assets/logo-icafow.png";
+const ogImage = "/assets/og-image.jpg";
 
 export const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),

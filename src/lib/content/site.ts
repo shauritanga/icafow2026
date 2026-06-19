@@ -10,7 +10,7 @@ export const siteConfig = {
   tagline: "Where AI Meets the Future of Work in Africa",
   description:
     "ICAFoW 2026 is a pioneering pan-African conference harmonizing the future of work with cutting-edge advancements in Artificial Intelligence. 24–26 September 2026, JNICC, Dar es Salaam, Tanzania.",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://icafow.org",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://aiconference.arifa.org",
   host: "Africa Research Institute For AI (ARIFA)",
   hostShort: "ARIFA",
 
