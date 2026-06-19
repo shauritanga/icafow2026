@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, Users, CreditCard, FileText, Megaphone, Store, LogOut, PanelLeft, Mic2, Bell, SunMoon, User, Settings, Handshake, Lightbulb } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, FileText, Megaphone, Store, LogOut, PanelLeft, Mic2, Bell, SunMoon, User, Settings, Handshake, Lightbulb, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/content/site";
 import { cn } from "@/lib/utils";
@@ -22,6 +22,7 @@ const navLinks = [
   { href: "/admin/exhibitors", label: "Exhibitors", icon: Store },
   { href: "/admin/partners", label: "Partners", icon: Handshake },
   { href: "/admin/pitch", label: "Pitch", icon: Lightbulb },
+  { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   { href: "/admin/users", label: "Admin Users", icon: User },
 ];
 

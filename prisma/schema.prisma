@@ -145,7 +145,7 @@ model Paper {
   keywords String?
   authors  Json?   // [{name, email, affiliation}]
   fileUrl  String?
-  status   String  @default("submitted") // submitted | under_review | accepted | rejected
+  status   String  @default("pending") // pending | under_review | accepted | rejected
 
   registrationId String       @unique
   registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)

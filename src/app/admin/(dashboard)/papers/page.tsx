@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
-import { formatDate } from "@/lib/utils";
+import { PageTitle } from "@/components/admin/ui";
 import { Stagger } from "@/components/motion/reveal";
+import { PapersClient } from "@/components/admin/papers-client";
 
 export const dynamic = "force-dynamic";
 
@@ -13,19 +13,11 @@ export default async function PapersPage() {
   });
 
   return (
-    <Stagger className="h-full">
+    <Stagger className="h-full flex flex-col">
       <PageTitle title="Paper Submissions" subtitle="Research papers submitted with the Researcher Pass." />
-      <DataTable headers={["Title", "Author", "Track", "Status", "Submitted"]} rows={papers.length} empty="No papers submitted yet.">
-        {papers.map((p) => (
-          <tr key={p.id}>
-            <Td className="max-w-xs whitespace-normal font-medium">{p.title}</Td>
-            <Td>{p.registration.fullName}</Td>
-            <Td className="text-muted-foreground">{p.track ?? "—"}</Td>
-            <Td><StatusBadge status={p.status.toUpperCase()} /></Td>
-            <Td className="text-muted-foreground">{formatDate(p.createdAt, { day: "numeric", month: "short" })}</Td>
-          </tr>
-        ))}
-      </DataTable>
+      <div className="flex-1 min-h-0">
+        <PapersClient papers={papers} />
+      </div>
     </Stagger>
   );
 }
