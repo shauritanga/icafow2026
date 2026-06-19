@@ -24,6 +24,7 @@ export function SettingsForm({ defaultSettings }: { defaultSettings: any }) {
       facebook: defaultSettings.socials?.facebook || "",
       instagram: defaultSettings.socials?.instagram || "",
       youtube: defaultSettings.socials?.youtube || "",
+      tiktok: defaultSettings.socials?.tiktok || "",
     }
   });
 
@@ -104,9 +105,13 @@ export function SettingsForm({ defaultSettings }: { defaultSettings: any }) {
             <Label htmlFor="social-instagram">Instagram URL</Label>
             <Input id="social-instagram" value={formData.socials.instagram} onChange={e => handleChange('socials', 'instagram', e.target.value)} />
           </div>
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2 md:col-span-1">
             <Label htmlFor="social-youtube">YouTube URL</Label>
             <Input id="social-youtube" value={formData.socials.youtube} onChange={e => handleChange('socials', 'youtube', e.target.value)} />
+          </div>
+          <div className="space-y-2 md:col-span-1">
+            <Label htmlFor="social-tiktok">TikTok URL</Label>
+            <Input id="social-tiktok" value={formData.socials.tiktok} onChange={e => handleChange('socials', 'tiktok', e.target.value)} />
           </div>
         </div>
 

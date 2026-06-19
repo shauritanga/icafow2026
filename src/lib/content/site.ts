@@ -52,6 +52,7 @@ export const siteConfig = {
     facebook: "https://facebook.com/arifa.ai",
     instagram: "https://instagram.com/arifa.ai",
     youtube: "https://youtube.com/@arifa-ai",
+    tiktok: "https://www.tiktok.com/ARIFA_AI",
   },
 
   stats: [

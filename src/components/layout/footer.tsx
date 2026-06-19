@@ -5,7 +5,7 @@ import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
 import { useSiteSettings } from "@/components/site-provider";
 import { navItems, registrationRoutes } from "@/lib/content/nav";
-import { LinkedinIcon, TwitterIcon, FacebookIcon, InstagramIcon, YoutubeIcon } from "@/components/social-icons";
+import { LinkedinIcon, TwitterIcon, FacebookIcon, InstagramIcon, YoutubeIcon, TiktokIcon } from "@/components/social-icons";
 
 export function Footer() {
   const siteConfig = useSiteSettings();
@@ -16,6 +16,7 @@ export function Footer() {
     { icon: FacebookIcon, href: siteConfig.socials.facebook, label: "Facebook" },
     { icon: InstagramIcon, href: siteConfig.socials.instagram, label: "Instagram" },
     { icon: YoutubeIcon, href: siteConfig.socials.youtube, label: "YouTube" },
+    { icon: TiktokIcon, href: siteConfig.socials.tiktok, label: "TikTok" },
   ];
 
   return (
