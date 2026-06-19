@@ -36,8 +36,20 @@ export function AdminShell({ userEmail, userAvatar, children }: { userEmail: str
   const currentNav = navLinks.find(l => l.href === pathname) || navLinks[0];
   const pageTitle = `Dashboard > ${currentNav.label}`;
 
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem("admin-theme");
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (savedTheme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.classList.add("dark");
+    }
+  }, []);
+
   const toggleTheme = () => {
-    document.documentElement.classList.toggle("dark");
+    const isDark = document.documentElement.classList.toggle("dark");
+    localStorage.setItem("admin-theme", isDark ? "dark" : "light");
   };
 
   const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : "A";
@@ -58,7 +70,10 @@ export function AdminShell({ userEmail, userAvatar, children }: { userEmail: str
               I
             </div>
           ) : (
-            <Image src="/assets/logo-icafow.png" alt={siteConfig.name} width={130} height={42} className="h-8 w-auto px-5" />
+            <>
+              <Image src="/assets/logo-icafow.png" alt={siteConfig.name} width={130} height={42} className="h-8 w-auto px-5 dark:hidden" />
+              <Image src="/assets/logo-icafow-white.png" alt={siteConfig.name} width={130} height={42} className="hidden h-8 w-auto px-5 dark:block" />
+            </>
           )}
         </div>
         <nav className="flex-1 space-y-1 p-3">
@@ -140,9 +155,9 @@ export function AdminShell({ userEmail, userAvatar, children }: { userEmail: str
             >
               <PanelLeft className="size-5" />
             </Button>
-            {/* Mobile branding */}
             <div className="flex items-center lg:hidden">
-              <Image src="/assets/logo-icafow.png" alt={siteConfig.name} width={120} height={40} className="h-8 w-auto" />
+              <Image src="/assets/logo-icafow.png" alt={siteConfig.name} width={120} height={40} className="h-8 w-auto dark:hidden" />
+              <Image src="/assets/logo-icafow-white.png" alt={siteConfig.name} width={120} height={40} className="hidden h-8 w-auto dark:block" />
             </div>
             
             <h1 className="hidden text-sm sm:flex sm:items-center lg:ml-2">

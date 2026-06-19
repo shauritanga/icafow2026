@@ -25,11 +25,11 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="space-y-5">
             <Image
-              src="/assets/logo-icafow.png"
+              src="/assets/logo-icafow-white.png"
               alt={siteConfig.name}
               width={170}
               height={56}
-              className="h-12 w-auto rounded bg-white/95 p-1.5"
+              className="h-12 w-auto"
             />
             <p className="max-w-sm text-sm leading-relaxed text-white/70">
               {siteConfig.longName}. Hosted by {siteConfig.host}. Shaping Africa&apos;s

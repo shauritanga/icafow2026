@@ -41,7 +41,7 @@ export function Navbar() {
         <nav className="container-edge flex h-16 items-center justify-between gap-4 lg:h-20">
           <Link href="#hero" className="flex items-center gap-2 shrink-0" aria-label={siteConfig.name}>
             <Image
-              src="/assets/logo-icafow.png"
+              src="/assets/logo-icafow-white.png"
               alt={`${siteConfig.name} logo`}
               width={150}
               height={48}

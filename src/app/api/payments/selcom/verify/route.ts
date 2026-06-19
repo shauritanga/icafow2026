@@ -20,6 +20,23 @@ export async function GET(req: NextRequest) {
     include: { registration: true },
   });
   if (!payment) {
+    const registration = await prisma.registration.findUnique({
+      where: { reference }
+    });
+    if (registration) {
+      return NextResponse.json({
+        reference: registration.reference,
+        status: "COMPLETED",
+        amount: 0,
+        currency: "USD",
+        registration: {
+          reference: registration.reference,
+          fullName: registration.fullName,
+          packageLabel: registration.packageLabel,
+          type: registration.type,
+        },
+      });
+    }
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

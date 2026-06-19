@@ -109,6 +109,30 @@ export function PaymentStatus({ reference, mock }: { reference: string; mock: bo
   const isPaid = data!.status === "PAID";
   const isFailed = data!.status === "FAILED" || data!.status === "CANCELLED";
 
+  if (data!.amount === 0) {
+    return (
+      <Card className="overflow-hidden">
+        <div className="flex flex-col items-center gap-3 border-b border-border p-8 text-center">
+          <CheckCircle2 className="size-16 text-primary" />
+          <h1 className="text-2xl font-bold">Request Received</h1>
+          <p className="mt-2 text-muted-foreground max-w-sm">
+            Thank you for your interest! Our team will review your application and contact you shortly to finalize the details.
+          </p>
+        </div>
+        <div className="space-y-3 p-6 text-sm">
+          <Row label="Reference" value={<span className="font-mono">{data!.reference}</span>} />
+          <Row label="Name" value={data!.registration.fullName} />
+          {data!.registration.packageLabel && <Row label="Package" value={data!.registration.packageLabel} />}
+        </div>
+        <div className="flex flex-col gap-3 border-t border-border p-6 sm:flex-row sm:justify-center">
+          <Button asChild variant="outline" size="lg">
+            <Link href="/"><ArrowLeft className="size-4" /> Back to home</Link>
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-col items-center gap-3 border-b border-border p-8 text-center">

@@ -44,7 +44,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
   const [photoData, setPhotoData] = React.useState<string | null>(null);
   const [photoError, setPhotoError] = React.useState<string | null>(null);
 
-  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<SpeakerInput>({
+  const { register, handleSubmit, control, setValue, trigger, formState: { errors, isSubmitting } } = useForm<SpeakerInput>({
     resolver: zodResolver(speakerSchema),
     defaultValues: { country: "" },
   });
@@ -59,7 +59,10 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
     setPhotoError(null);
     const reader = new FileReader();
     reader.onload = (event) => {
-      setPhotoData(event.target?.result as string);
+      const base64 = event.target?.result as string;
+      setPhotoData(base64);
+      setValue("photoData", base64);
+      trigger("photoData");
     };
     reader.readAsDataURL(file);
   };
