@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Field, FormSection } from "@/components/forms/field";
 import { CountryField, ConsentRow, ErrorBanner, SubmitButton } from "@/components/forms/shared";
+import { ApplicationSuccess } from "@/components/forms/application-success";
 import {
   FormDialog,
   ModalForm,
@@ -45,6 +46,8 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [reference, setReference] = React.useState<string | null>(null);
+  const isProcessingRef = React.useRef(false);
   const defaultPass = (passes.find((p) => p.id === initialPass)?.id ?? "delegate") as PassId;
 
   const { register, handleSubmit, watch, control, formState: { errors, isSubmitting } } = useForm<AttendeeInput>({
@@ -57,13 +60,16 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
   const isResearcher = passId === "researcher";
 
   async function onSubmit(data: AttendeeInput) {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     setServerError(null);
     try {
       const { reference, requiresPayment } = await submitRegistration("attendee", data);
       if (requiresPayment) await startPayment(reference, data.method);
-      else window.location.href = `/payment/${reference}`;
+      else setReference(reference);
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "Something went wrong");
+      isProcessingRef.current = false;
     }
   }
 
@@ -75,7 +81,16 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
         subtitle={isAdmin ? "Fill in the details below to manually register an attendee." : "Select your pass, tell us about yourself, and complete payment securely."}
       />
       <ModalBody>
-        <ErrorBanner message={serverError} />
+        {reference ? (
+          <ApplicationSuccess
+            title="Registration request received!"
+            reference={reference}
+            message="Thank you for registering. Your request has been received and our team will review it shortly."
+            onClose={() => window.location.reload()}
+          />
+        ) : (
+          <>
+            <ErrorBanner message={serverError} />
 
         {initialPass ? (
           <>
@@ -177,15 +192,19 @@ function AttendeeForm({ initialPass }: { initialPass?: string }) {
         <ConsentRow id="at-consent" error={errors.consent?.message} register={register("consent")}>
           I confirm the information provided is accurate and I accept the ICAFoW 2026 terms and the refund policy.
         </ConsentRow>
+          </>
+        )}
       </ModalBody>
-      <ModalFooter>
-        <p className="text-sm text-muted-foreground">
-          Total due: <span className="font-bold text-primary">{formatCurrency(selected.priceUSD)}</span>
-        </p>
-        <SubmitButton loading={isSubmitting}>
-          Proceed to Payment <ArrowRight className="size-4" />
-        </SubmitButton>
-      </ModalFooter>
+      {!reference && (
+        <ModalFooter>
+          <p className="text-sm text-muted-foreground">
+            Total due: <span className="font-bold text-primary">{formatCurrency(selected.priceUSD)}</span>
+          </p>
+          <SubmitButton loading={isSubmitting}>
+            {selected.priceUSD === 0 ? "Complete Registration" : "Proceed to Payment"} <ArrowRight className="size-4" />
+          </SubmitButton>
+        </ModalFooter>
+      )}
     </ModalForm>
   );
 }

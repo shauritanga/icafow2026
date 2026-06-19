@@ -43,10 +43,10 @@ export function Navbar() {
             <Image
               src="/assets/logo-icafow-white.png"
               alt={`${siteConfig.name} logo`}
-              width={150}
-              height={48}
+              width={200}
+              height={64}
               priority
-              className="h-9 w-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] transition-all lg:h-11"
+              className="h-12 w-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] transition-all lg:h-16"
             />
           </Link>
 

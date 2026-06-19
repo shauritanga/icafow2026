@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Field, FormSection } from "@/components/forms/field";
 import { CountryField, ConsentRow, ErrorBanner, SubmitButton } from "@/components/forms/shared";
+import { ApplicationSuccess } from "@/components/forms/application-success";
 import {
   FormDialog,
   ModalForm,
@@ -44,6 +45,8 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [reference, setReference] = React.useState<string | null>(null);
+  const isProcessingRef = React.useRef(false);
   const [logoSource, setLogoSource] = React.useState<"upload" | "url">("upload");
   const [logoFileError, setLogoFileError] = React.useState<string | null>(null);
   const defaultTier = (sponsorTiers.find((t) => t.id === initialTier)?.id ?? "platinum") as SponsorTierId;
@@ -83,13 +86,16 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
   };
 
   async function onSubmit(data: SponsorInput) {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     setServerError(null);
     try {
       const { reference, requiresPayment } = await submitRegistration("sponsor", data);
       if (requiresPayment) await startPayment(reference, data.method);
-      else window.location.href = `/payment/${reference}`;
+      else setReference(reference);
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "Something went wrong");
+      isProcessingRef.current = false;
     }
   }
 
@@ -101,7 +107,16 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
         subtitle={isAdmin ? "Fill in the details below to manually register a sponsor." : "Position your organization at the forefront of Africa's AI revolution."}
       />
       <ModalBody>
-        <ErrorBanner message={serverError} />
+        {reference ? (
+          <ApplicationSuccess
+            title="Sponsorship request received!"
+            reference={reference}
+            message="Thank you for your interest. Our team will review your application and contact you shortly to finalize the details."
+            onClose={() => window.location.reload()}
+          />
+        ) : (
+          <>
+            <ErrorBanner message={serverError} />
 
         {initialTier ? (
           <>
@@ -225,15 +240,19 @@ function SponsorForm({ initialTier }: { initialTier?: string }) {
         <ConsentRow id="so-consent" error={errors.consent?.message} register={register("consent")}>
           I confirm the information provided is accurate and authorize ICAFoW 2026 to contact me regarding this sponsorship.
         </ConsentRow>
+          </>
+        )}
       </ModalBody>
-      <ModalFooter>
-        <span className="text-xs text-muted-foreground">
-          {negotiated ? "Our team will confirm your package." : "Secure payment via Selcom."}
-        </span>
-        <SubmitButton loading={isSubmitting}>
-          {negotiated ? "Submit Request" : "Proceed to Payment"} <ArrowRight className="size-4" />
-        </SubmitButton>
-      </ModalFooter>
+      {!reference && (
+        <ModalFooter>
+          <span className="text-xs text-muted-foreground">
+            {negotiated ? "Our team will confirm your package." : "Secure payment via Selcom."}
+          </span>
+          <SubmitButton loading={isSubmitting}>
+            {negotiated ? "Submit Request" : "Proceed to Payment"} <ArrowRight className="size-4" />
+          </SubmitButton>
+        </ModalFooter>
+      )}
     </ModalForm>
   );
 }

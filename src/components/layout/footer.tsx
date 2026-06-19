@@ -27,9 +27,9 @@ export function Footer() {
             <Image
               src="/assets/logo-icafow-white.png"
               alt={siteConfig.name}
-              width={170}
-              height={56}
-              className="h-12 w-auto"
+              width={240}
+              height={80}
+              className="h-16 w-auto lg:h-20"
             />
             <p className="max-w-sm text-sm leading-relaxed text-white/70">
               {siteConfig.longName}. Hosted by {siteConfig.host}. Shaping Africa&apos;s

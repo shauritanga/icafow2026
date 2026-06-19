@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Field, FormSection } from "@/components/forms/field";
 import { CountryField, ConsentRow, ErrorBanner, SubmitButton } from "@/components/forms/shared";
+import { ApplicationSuccess } from "@/components/forms/application-success";
 import {
   FormDialog,
   ModalForm,
@@ -44,6 +45,8 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
   const [serverError, setServerError] = React.useState<string | null>(null);
+  const [reference, setReference] = React.useState<string | null>(null);
+  const isProcessingRef = React.useRef(false);
   const defaultBooth = (booths.find((b) => b.id === initialBooth)?.id ?? "innovation") as BoothId;
 
   const { register, handleSubmit, watch, control, formState: { errors, isSubmitting } } = useForm<ExhibitorInput>({
@@ -55,13 +58,16 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
   const selected = booths.find((b) => b.id === boothId)!;
 
   async function onSubmit(data: ExhibitorInput) {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     setServerError(null);
     try {
       const { reference, requiresPayment } = await submitRegistration("exhibitor", data);
       if (requiresPayment) await startPayment(reference, data.method);
-      else window.location.href = `/payment/${reference}`;
+      else setReference(reference);
     } catch (e) {
       setServerError(e instanceof Error ? e.message : "Something went wrong");
+      isProcessingRef.current = false;
     }
   }
 
@@ -73,7 +79,16 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
         subtitle={isAdmin ? "Fill in the details below to manually register an exhibitor." : "Showcase your AI solutions to decision-makers across Africa."}
       />
       <ModalBody>
-        <ErrorBanner message={serverError} />
+        {reference ? (
+          <ApplicationSuccess
+            title="Exhibitor request received!"
+            reference={reference}
+            message="Thank you for reserving a booth. Your request has been received and our team will review it shortly."
+            onClose={() => window.location.reload()}
+          />
+        ) : (
+          <>
+            <ErrorBanner message={serverError} />
 
         {initialBooth ? (
           <>
@@ -158,15 +173,19 @@ function ExhibitorForm({ initialBooth }: { initialBooth?: string }) {
             I agree to the ICAFoW 2026 Exhibition Terms and Conditions.
           </ConsentRow>
         </div>
+          </>
+        )}
       </ModalBody>
-      <ModalFooter>
-        <p className="text-sm text-muted-foreground">
-          Total: <span className="font-bold text-primary">{formatCurrency(selected.priceUSD)}</span>
-        </p>
-        <SubmitButton loading={isSubmitting}>
-          Proceed to Payment <ArrowRight className="size-4" />
-        </SubmitButton>
-      </ModalFooter>
+      {!reference && (
+        <ModalFooter>
+          <p className="text-sm text-muted-foreground">
+            Total: <span className="font-bold text-primary">{formatCurrency(selected.priceUSD)}</span>
+          </p>
+          <SubmitButton loading={isSubmitting}>
+            {selected.priceUSD === 0 ? "Submit Request" : "Proceed to Payment"} <ArrowRight className="size-4" />
+          </SubmitButton>
+        </ModalFooter>
+      )}
     </ModalForm>
   );
 }
