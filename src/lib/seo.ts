@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/content/site";
 
-const ogImage = "/assets/og-image.jpg";
-
 export const baseMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — ${siteConfig.longName}`,
+    default: `${siteConfig.name} | ${siteConfig.longName}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -29,15 +27,13 @@ export const baseMetadata: Metadata = {
     locale: "en_US",
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} — ${siteConfig.longName}`,
+    title: `${siteConfig.name} | ${siteConfig.longName}`,
     description: siteConfig.description,
-    images: [{ url: ogImage, width: 1200, height: 630, alt: siteConfig.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — ${siteConfig.longName}`,
+    title: `${siteConfig.name} | ${siteConfig.longName}`,
     description: siteConfig.description,
-    images: [ogImage],
     creator: "@arifa_ai",
   },
   robots: {
@@ -54,7 +50,7 @@ export function eventJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: `${siteConfig.name} — ${siteConfig.longName}`,
+    name: `${siteConfig.name} | ${siteConfig.longName}`,
     description: siteConfig.description,
     startDate: siteConfig.dates.startISO,
     endDate: siteConfig.dates.endISO,
@@ -70,7 +66,7 @@ export function eventJsonLd() {
         addressCountry: "TZ",
       },
     },
-    image: [new URL(ogImage, siteConfig.url).toString()],
+    image: [new URL("/opengraph-image.jpg", siteConfig.url).toString()],
     organizer: {
       "@type": "Organization",
       name: siteConfig.host,
