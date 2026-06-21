@@ -41,7 +41,7 @@ export default async function InvoicePage(props: {
       </div>
 
       <div className="container-edge mt-6 print:mt-0">
-        <article className="mx-auto max-w-3xl rounded-xl border border-border bg-white p-8 shadow-sm print:border-0 print:shadow-none sm:p-10">
+        <article className="mx-auto max-w-3xl overflow-hidden rounded-xl border border-border border-t-4 border-t-primary bg-white p-8 shadow-sm print:border-0 print:shadow-none sm:p-10">
           {/* Header */}
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
             <div>
@@ -99,7 +99,7 @@ export default async function InvoicePage(props: {
               <tr className="border-b border-border">
                 <td className="py-3">
                   <span className="font-medium">{registration.packageLabel ?? registration.type}</span>
-                  <span className="block text-xs text-muted-foreground">ICAFoW 2026 — {registration.type.toLowerCase()} registration</span>
+                  <span className="block text-xs text-muted-foreground">ICAFoW 2026 - {registration.type.toLowerCase()} registration</span>
                 </td>
                 <td className="py-3 text-center">1</td>
                 <td className="py-3 text-right">{formatCurrency(registration.amount, registration.currency)}</td>
@@ -124,7 +124,7 @@ export default async function InvoicePage(props: {
             <div className="mt-6 rounded-lg bg-muted/50 p-4 text-sm print:bg-muted/30">
               <p className="font-semibold">Payment details</p>
               <div className="mt-2 grid gap-1 text-muted-foreground sm:grid-cols-2">
-                <span>Method: {payment.method}</span>
+                {payment.method && payment.method !== "UNSET" && <span>Method: {payment.method}</span>}
                 <span>Status: {payment.status}</span>
                 <span>Gateway: Selcom</span>
                 {payment.selcomTransId && <span>Transaction: {payment.selcomTransId}</span>}
