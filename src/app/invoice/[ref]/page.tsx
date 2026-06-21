@@ -2,11 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import QRCode from "qrcode";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSiteSettings } from "@/lib/settings";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { approxTZS } from "@/lib/rate";
+import { signVerifyToken } from "@/lib/verify-token";
 import { Badge } from "@/components/ui/badge";
 import { PrintButton } from "@/components/invoice/print-button";
 
@@ -30,6 +32,20 @@ export default async function InvoicePage(props: {
   const payment = registration.payments.find((p) => p.status === "PAID") ?? registration.payments[0];
   const isPaid = payment?.status === "PAID";
   const issued = formatDate(registration.createdAt);
+
+  // A confirmed registration doubles as an entrance pass: render a signed QR
+  // (server-side SVG, print-safe) that staff scan at the gate to verify + check
+  // the attendee in. Live status is re-checked when the QR is scanned.
+  const isValid = registration.status === "CONFIRMED";
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (siteConfig.host ? `https://${siteConfig.host}` : "");
+  const qrSvg = isValid
+    ? await QRCode.toString(`${appUrl}/verify/${signVerifyToken(registration.id)}`, {
+        type: "svg",
+        margin: 1,
+      })
+    : null;
 
   return (
     <div className="section-light min-h-dvh bg-muted/30 py-8 print:bg-white print:py-0">
@@ -130,6 +146,23 @@ export default async function InvoicePage(props: {
                 {payment.selcomTransId && <span>Transaction: {payment.selcomTransId}</span>}
                 {payment.paidAt && <span>Paid on: {formatDate(payment.paidAt)}</span>}
                 <span>Reference: {payment.reference}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Entrance pass — scannable verification QR */}
+          {qrSvg && (
+            <div className="mt-6 flex items-center gap-4 rounded-lg border border-border p-4">
+              <div
+                className="size-28 shrink-0 [&>svg]:size-full"
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
+              <div className="text-sm">
+                <p className="font-semibold text-primary">Entrance pass</p>
+                <p className="mt-1 text-muted-foreground">
+                  Scan this code at the conference entrance to verify your
+                  registration and check in. Reference {registration.reference}.
+                </p>
               </div>
             </div>
           )}

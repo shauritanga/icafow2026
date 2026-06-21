@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { LayoutDashboard, Users, CreditCard, FileText, Megaphone, Store, LogOut, PanelLeft, Mic2, Bell, SunMoon, User, Settings, Handshake, Lightbulb, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, CreditCard, FileText, Megaphone, Store, LogOut, PanelLeft, Mic2, Bell, SunMoon, User, Settings, Handshake, Lightbulb, MessageSquare, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/lib/content/site";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/attendees", label: "Attendees", icon: Users },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/checkin", label: "Check-in", icon: QrCode },
   { href: "/admin/papers", label: "Papers", icon: FileText },
   { href: "/admin/speakers", label: "Speakers", icon: Mic2 },
   { href: "/admin/sponsors", label: "Sponsors", icon: Megaphone },

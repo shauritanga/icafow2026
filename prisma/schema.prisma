@@ -98,6 +98,12 @@ model Registration {
   details Json?
 
   notes     String?
+
+  // Entrance check-in (scanned receipt QR). Null until staff check the
+  // attendee in at the gate; checkedInBy records the admin email for audit.
+  checkedInAt DateTime?
+  checkedInBy String?
+
   payments  Payment[]
   paper     Paper?
   createdAt DateTime  @default(now())
