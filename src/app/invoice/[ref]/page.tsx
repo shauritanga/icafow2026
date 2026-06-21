@@ -32,7 +32,7 @@ export default async function InvoicePage(props: {
   const issued = formatDate(registration.createdAt);
 
   return (
-    <div className="min-h-dvh bg-muted/30 py-8 print:bg-white print:py-0">
+    <div className="section-light min-h-dvh bg-muted/30 py-8 print:bg-white print:py-0">
       <div className="container-edge flex items-center justify-between print:hidden">
         <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary">
           <ArrowLeft className="size-4" /> Home

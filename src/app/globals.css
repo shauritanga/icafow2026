@@ -215,6 +215,32 @@
     scrollbar-color: oklch(1 0 0 / 15%) transparent;
   }
 
+  /*
+    Scoped light surface — the inverse of .section-dark. Pins the semantic tokens
+    to the light palette so token-based components (Card, text-muted-foreground,
+    border-border, bg-muted) always render dark-on-light, regardless of the global
+    theme. Used for documents that must stay light on screen AND in print, e.g.
+    the invoice/receipt.
+  */
+  .section-light {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.21 0.01 285);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.21 0.01 285);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.21 0.01 285);
+    --muted: oklch(0.967 0.001 286);
+    --muted-foreground: oklch(0.45 0.01 286);
+    --accent: oklch(0.96 0.03 150);
+    --accent-foreground: var(--brand-green-dark);
+    --border: oklch(0.92 0.004 286);
+    --input: oklch(0.92 0.004 286);
+    --primary: var(--brand-maroon);
+    --secondary: var(--brand-green);
+    --ring: var(--brand-maroon);
+    color: var(--foreground);
+  }
+
   .section-dark ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
