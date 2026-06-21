@@ -52,10 +52,10 @@ export async function deleteRegistration(id: string, path: string) {
 }
 
 /**
- * Mark an attendee as checked in at the gate. Staff-only (any logged-in admin
- * user). The signed token from the scanned QR is re-verified server-side so the
- * caller can't check in an arbitrary id. Idempotent: a second scan reports the
- * existing check-in instead of overwriting it.
+ * Check one more person of a registration in at the gate (N-of-M). Staff-only.
+ * The signed token from the scanned QR is re-verified server-side so the caller
+ * can't check in an arbitrary id. Increments `checkedInCount` up to `seats`
+ * using a guarded write, so concurrent scans can't over-count past the bundle.
  */
 export async function markCheckedIn(token: string, path: string) {
   const session = await auth();
@@ -66,38 +66,40 @@ export async function markCheckedIn(token: string, path: string) {
 
   const registration = await prisma.registration.findUnique({
     where: { id: registrationId },
+    select: { status: true, seats: true, checkedInCount: true, checkedInAt: true },
   });
   if (!registration) return { ok: false as const, error: "Not found" };
   if (registration.status !== "CONFIRMED") {
     return { ok: false as const, error: "Registration is not valid (unpaid/unconfirmed)" };
   }
 
-  if (registration.checkedInAt) {
-    return {
-      ok: true as const,
-      alreadyCheckedIn: true,
-      checkedInAt: registration.checkedInAt.toISOString(),
-    };
-  }
-
-  // Guarded write so a concurrent scan can't double-check-in.
+  // Guarded increment: only updates while there are seats left, so a concurrent
+  // scan that fills the last seat makes this one a no-op (count === 0).
+  const isFirst = registration.checkedInAt === null;
   const { count } = await prisma.registration.updateMany({
-    where: { id: registrationId, checkedInAt: null },
-    data: { checkedInAt: new Date(), checkedInBy: session.user.email },
+    where: { id: registrationId, checkedInCount: { lt: registration.seats } },
+    data: {
+      checkedInCount: { increment: 1 },
+      checkedInBy: session.user.email,
+      ...(isFirst ? { checkedInAt: new Date() } : {}),
+    },
   });
 
   const fresh = await prisma.registration.findUnique({
     where: { id: registrationId },
-    select: { checkedInAt: true },
+    select: { seats: true, checkedInCount: true },
   });
-  const checkedInAt = (fresh?.checkedInAt ?? new Date()).toISOString();
+  const seats = fresh?.seats ?? registration.seats;
+  const checkedInCount = fresh?.checkedInCount ?? registration.checkedInCount;
 
   revalidatePath(path);
   revalidatePath("/admin/checkin");
   return {
     ok: true as const,
-    alreadyCheckedIn: count === 0, // lost the race → already checked in
-    checkedInAt,
+    incremented: count > 0,
+    full: checkedInCount >= seats, // all bundled people are now in
+    checkedInCount,
+    seats,
   };
 }
 

@@ -21,6 +21,8 @@ export interface SponsorTier {
   summary: string;
   benefits: string[];
   slots?: string;
+  /** Entrance passes bundled with the tier (used for check-in headcount). */
+  seats: number;
 }
 
 export const sponsorTiers: SponsorTier[] = [
@@ -28,6 +30,7 @@ export const sponsorTiers: SponsorTier[] = [
     id: "strategic",
     name: "Strategic Partner",
     priceUSD: null,
+    seats: 10,
     accent: "maroon",
     summary:
       "Co-host level partnership with headline branding and a shaping role in the conference agenda.",
@@ -46,6 +49,7 @@ export const sponsorTiers: SponsorTier[] = [
     id: "platinum",
     name: "Platinum Sponsor",
     priceUSD: 30000,
+    seats: 6,
     accent: "gold",
     highlight: true,
     summary:
@@ -65,6 +69,7 @@ export const sponsorTiers: SponsorTier[] = [
     id: "gold",
     name: "Gold Sponsor",
     priceUSD: 18000,
+    seats: 4,
     accent: "maroon",
     summary:
       "High-impact brand presence with strong networking and exhibition benefits.",
@@ -82,6 +87,7 @@ export const sponsorTiers: SponsorTier[] = [
     id: "silver",
     name: "Silver Sponsor",
     priceUSD: 9000,
+    seats: 2,
     accent: "green",
     summary: "Solid brand visibility and access to a high-value audience.",
     slots: "8 available",
@@ -97,6 +103,7 @@ export const sponsorTiers: SponsorTier[] = [
     id: "bronze",
     name: "Bronze Sponsor",
     priceUSD: 4500,
+    seats: 1,
     accent: "green",
     summary: "An accessible entry point to associate your brand with ICAFoW 2026.",
     benefits: [

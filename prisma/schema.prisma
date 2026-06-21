@@ -99,10 +99,16 @@ model Registration {
 
   notes     String?
 
-  // Entrance check-in (scanned receipt QR). Null until staff check the
-  // attendee in at the gate; checkedInBy records the admin email for audit.
-  checkedInAt DateTime?
-  checkedInBy String?
+  // Entrance passes bundled with this registration (sponsor tiers / booths
+  // include several; individual passes = 1). Drives N-of-M gate check-in.
+  seats Int @default(1)
+
+  // Entrance check-in (scanned receipt QR). checkedInCount counts how many of
+  // the `seats` people have entered; checkedInAt is the first entry time and
+  // checkedInBy the admin who recorded it (for audit).
+  checkedInCount Int       @default(0)
+  checkedInAt    DateTime?
+  checkedInBy    String?
 
   payments  Payment[]
   paper     Paper?

@@ -50,6 +50,9 @@ export async function createRegistration(
   let packageId: string | null = null;
   let packageLabel: string | null = null;
   let requiresPayment = false;
+  // Entrance passes bundled with the package (sponsor tiers / booths include
+  // several); drives N-of-M check-in headcount. Individual passes = 1.
+  let seats = 1;
 
   // Common contact fields differ slightly per form; normalize them.
   const fullName =
@@ -77,6 +80,7 @@ export async function createRegistration(
     amount = tier.priceUSD ?? 0;
     packageId = tier.id;
     packageLabel = tier.name;
+    seats = tier.seats;
     requiresPayment = amount > 0; // "by negotiation" tiers → follow-up, no instant payment
   } else if (type === "exhibitor") {
     const booth = getBooth(data.boothId as never);
@@ -84,6 +88,7 @@ export async function createRegistration(
     amount = booth.priceUSD;
     packageId = booth.id;
     packageLabel = `${booth.name} (${booth.size})`;
+    seats = booth.seats;
     requiresPayment = true;
   } else {
     // partner / speaker / pitch are submission-only applications
@@ -109,6 +114,7 @@ export async function createRegistration(
       country,
       packageId,
       packageLabel,
+      seats,
       amount,
       currency: "USD",
       details: data as Prisma.InputJsonValue,

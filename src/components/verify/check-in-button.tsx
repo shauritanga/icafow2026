@@ -1,17 +1,28 @@
 "use client";
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { CheckCircle2, Loader2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { markCheckedIn } from "@/app/admin/actions";
 import { toast } from "sonner";
 
-/** Staff-only "Check in" action shown on the verify page. */
-export function CheckInButton({ token }: { token: string }) {
+/** Staff-only "check in next person" action (N-of-M) shown on the verify page. */
+export function CheckInButton({
+  token,
+  seats,
+  checkedInCount,
+}: {
+  token: string;
+  seats: number;
+  checkedInCount: number;
+}) {
+  const router = useRouter();
   const pathname = usePathname();
   const [busy, setBusy] = React.useState(false);
-  const [done, setDone] = React.useState(false);
+
+  const multi = seats > 1;
+  const remaining = Math.max(seats - checkedInCount, 0);
 
   async function onClick() {
     setBusy(true);
@@ -21,8 +32,14 @@ export function CheckInButton({ token }: { token: string }) {
         toast.error(res.error || "Could not check in");
         return;
       }
-      setDone(true);
-      toast.success(res.alreadyCheckedIn ? "Already checked in" : "Checked in ✓");
+      if (!res.incremented) {
+        toast.message("Everyone on this registration is already checked in");
+      } else {
+        toast.success(
+          multi ? `Checked in ${res.checkedInCount} of ${res.seats}` : "Checked in ✓"
+        );
+      }
+      router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not check in");
     } finally {
@@ -30,18 +47,16 @@ export function CheckInButton({ token }: { token: string }) {
     }
   }
 
-  if (done) {
-    return (
-      <p className="flex items-center justify-center gap-2 text-sm font-semibold text-secondary">
-        <CheckCircle2 className="size-5" /> Checked in
-      </p>
-    );
-  }
-
   return (
     <Button onClick={onClick} variant="green" size="lg" disabled={busy} className="w-full">
-      {busy ? <Loader2 className="size-4 animate-spin" /> : <CheckCircle2 className="size-4" />}
-      Check in
+      {busy ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : multi ? (
+        <UserPlus className="size-4" />
+      ) : (
+        <CheckCircle2 className="size-4" />
+      )}
+      {multi ? `Check in next person (${remaining} left)` : "Check in"}
     </Button>
   );
 }

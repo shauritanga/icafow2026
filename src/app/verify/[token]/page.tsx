@@ -85,9 +85,13 @@ export default async function VerifyPage(props: {
                 <Row
                   label="Check-in"
                   value={
-                    registration.checkedInAt ? (
+                    registration.seats > 1 ? (
+                      <Badge variant={registration.checkedInCount >= registration.seats ? "gold" : "green"}>
+                        {registration.checkedInCount} of {registration.seats} entered
+                      </Badge>
+                    ) : registration.checkedInCount >= 1 ? (
                       <Badge variant="gold">
-                        Entered {formatDate(registration.checkedInAt, { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}
+                        Entered{registration.checkedInAt ? ` ${formatDate(registration.checkedInAt, { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" })}` : ""}
                       </Badge>
                     ) : (
                       <Badge variant="green">Not yet entered</Badge>
@@ -97,15 +101,23 @@ export default async function VerifyPage(props: {
               </div>
 
               <div className="border-t border-border bg-muted/40 p-6">
-                {registration.checkedInAt ? (
+                {registration.checkedInCount >= registration.seats ? (
                   <p className="text-center text-sm font-semibold text-gold">
-                    ⚠ Already entered at {formatDate(registration.checkedInAt, { hour: "2-digit", minute: "2-digit" })}
+                    {registration.seats > 1
+                      ? `✓ All ${registration.seats} entered`
+                      : "⚠ Already entered"}
+                    {registration.checkedInAt
+                      ? ` · first at ${formatDate(registration.checkedInAt, { hour: "2-digit", minute: "2-digit" })}`
+                      : ""}
                   </p>
                 ) : isStaff ? (
-                  <CheckInButton token={token} />
+                  <CheckInButton token={token} seats={registration.seats} checkedInCount={registration.checkedInCount} />
                 ) : (
                   <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-                    <ShieldCheck className="size-4 text-secondary" /> Verified entrance pass — staff will check you in
+                    <ShieldCheck className="size-4 text-secondary" />
+                    {registration.seats > 1
+                      ? `${registration.checkedInCount} of ${registration.seats} entered — staff will check you in`
+                      : "Verified entrance pass — staff will check you in"}
                   </p>
                 )}
               </div>

@@ -14,6 +14,8 @@ export interface Booth {
   audience: string;
   highlight?: boolean;
   features: string[];
+  /** Delegate passes bundled with the booth (used for check-in headcount). */
+  seats: number;
 }
 
 export const booths: Booth[] = [
@@ -23,6 +25,7 @@ export const booths: Booth[] = [
     size: "3m × 3m",
     priceUSD: 1500,
     priceTZS: 4_000_000,
+    seats: 2,
     audience:
       "Perfect for startups, SMEs, universities, research institutions and organizations showcasing innovative AI solutions.",
     features: [
@@ -42,6 +45,7 @@ export const booths: Booth[] = [
     size: "3m × 6m",
     priceUSD: 2300,
     priceTZS: 6_000_000,
+    seats: 4,
     audience:
       "Designed for established organizations, technology providers, corporations and development partners seeking maximum visibility.",
     highlight: true,
