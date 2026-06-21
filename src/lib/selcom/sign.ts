@@ -39,6 +39,11 @@ export function buildSelcomHeaders(
 
   return {
     "Content-Type": "application/json",
+    // Selcom's API gateway rejects requests with HTTP 406 "Not Acceptable" when
+    // these content-negotiation/identity headers are absent. Node's fetch does
+    // not send them by default, so set them explicitly.
+    Accept: "application/json",
+    "User-Agent": "ICAFoW-2026/1.0",
     Authorization: `SELCOM ${authToken}`,
     "Digest-Method": "HS256",
     Digest: digest,

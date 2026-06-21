@@ -104,7 +104,14 @@ export async function createOrder(
       body: JSON.stringify(payload),
       cache: "no-store",
     });
-    const raw = await res.json().catch(() => ({}));
+    const rawText = await res.text();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let raw: any = {};
+    try {
+      raw = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      raw = {};
+    }
 
     // Selcom returns result_code "000" on success and data[0].payment_token /
     // data[0].payment_gateway_url for the hosted checkout.
@@ -122,8 +129,10 @@ export async function createOrder(
     if (!ok || !gatewayUrl) {
       console.error("[selcom] create-order failed", {
         orderId: params.orderId,
+        httpStatus: res.status,
         resultcode: raw?.resultcode,
         message: raw?.message,
+        body: rawText?.slice(0, 500),
       });
       return {
         success: false,
