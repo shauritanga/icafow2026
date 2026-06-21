@@ -1,5 +1,7 @@
 export interface CreateOrderParams {
-  orderId: string;
+  orderId: string; // unique per-attempt id sent to Selcom
+  /** Stable registration reference used to build redirect/cancel/page URLs. */
+  pageReference: string;
   amount: number; // integer, in TZS
   buyerName: string;
   buyerEmail: string;
@@ -33,6 +35,7 @@ export interface OrderStatusResult {
   transId?: string;
   reference?: string;
   amount?: number;
+  currency?: string;
   message?: string;
   raw?: unknown;
 }

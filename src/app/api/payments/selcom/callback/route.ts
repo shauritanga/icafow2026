@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyPayment } from "@/lib/payments";
+import { findPaymentBySelcomOrderId, verifyPayment } from "@/lib/payments";
 import { selcomConfig } from "@/lib/selcom/config";
 
 export const runtime = "nodejs";
@@ -7,8 +7,9 @@ export const dynamic = "force-dynamic";
 
 /**
  * Browser redirect target after the buyer completes (or abandons) the Selcom
- * hosted checkout. We verify the order status server-side, then redirect the
- * buyer to the friendly payment status page.
+ * hosted checkout. The `order` param is the per-attempt Selcom order_id. We
+ * verify status server-side, then redirect to the friendly payment status page
+ * keyed by the stable registration reference.
  */
 export async function GET(req: NextRequest) {
   const order =
@@ -20,9 +21,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/", selcomConfig.appUrl));
   }
 
-  await verifyPayment(order).catch(() => null);
+  const payment = await findPaymentBySelcomOrderId(order).catch(() => null);
+  if (!payment) {
+    return NextResponse.redirect(new URL("/", selcomConfig.appUrl));
+  }
+
+  await verifyPayment(payment.reference).catch(() => null);
 
   return NextResponse.redirect(
-    new URL(`/payment/${encodeURIComponent(order)}`, selcomConfig.appUrl)
+    new URL(`/payment/${encodeURIComponent(payment.reference)}`, selcomConfig.appUrl)
   );
 }

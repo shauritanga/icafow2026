@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { PaymentStatus } from "@/components/payment/payment-status";
-import { isSelcomMock } from "@/lib/selcom/config";
 import { getSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
@@ -27,7 +26,7 @@ export default async function PaymentPage(props: {
       </header>
       <main className="flex flex-1 items-center justify-center p-4">
         <div className="w-full max-w-lg">
-          <PaymentStatus reference={ref} mock={isSelcomMock} />
+          <PaymentStatus reference={ref} />
         </div>
       </main>
     </div>

@@ -117,8 +117,13 @@ model Payment {
   amount   Float
   currency Currency @default(USD)
 
+  // Exact charge sent to the gateway (snapshot for reconciliation)
+  chargeAmount   Int?      // integer minor/whole unit actually charged (TZS)
+  chargeCurrency Currency? @default(TZS)
+  attempt        Int       @default(1) // retry counter → unique gateway order_id
+
   // Selcom fields
-  selcomOrderId     String? // our order_id sent to Selcom
+  selcomOrderId     String? @unique // per-attempt order_id sent to Selcom
   selcomTransId     String? // Selcom transaction id (transid)
   selcomReference   String? // Selcom reference
   selcomPaymentToken String?

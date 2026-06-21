@@ -52,29 +52,43 @@ export function encodeUrl(url: string) {
   return Buffer.from(url).toString("base64");
 }
 
+export type WebhookSignatureCheck = "valid" | "invalid" | "unverifiable";
+
 /**
- * Verify an incoming Selcom webhook signature (best-effort).
- * Selcom posts a `digest`/`signature` computed over the payload fields. If a
- * shared secret is configured we recompute and compare; otherwise we accept
- * (mock mode / unconfigured) and rely on order-status verification instead.
+ * Best-effort verification of an incoming Selcom webhook signature.
+ *
+ * IMPORTANT: this is advisory only. Settlement NEVER trusts the webhook body —
+ * the webhook is purely a trigger to re-query the authoritative order-status
+ * endpoint (which we authenticate with our own signed request). We therefore
+ * return a tri-state result for logging and never let "unverifiable" masquerade
+ * as "valid".
+ *
+ * TODO: confirm the exact digest construction against the current Selcom
+ * webhook spec; the signed-request algorithm in `buildSelcomHeaders` is used as
+ * a best guess here (timestamp-prefixed, &-joined field list).
  */
 export function verifyWebhookSignature(
   payload: Record<string, string | number>,
   providedDigest?: string,
-  signedFields?: string[]
-): boolean {
-  if (!selcomConfig.apiSecret || !providedDigest) return true; // can't verify → fall back to status check
+  signedFields?: string[],
+  timestamp?: string
+): WebhookSignatureCheck {
+  if (!selcomConfig.apiSecret || !providedDigest) return "unverifiable";
   const fields = signedFields ?? Object.keys(payload);
-  let signData = "";
-  for (const f of fields) signData += `${f}=${payload[f]}&`;
-  signData = signData.replace(/&$/, "");
+  let signData = timestamp ? `timestamp=${timestamp}` : "";
+  for (const f of fields) {
+    signData += `${signData ? "&" : ""}${f}=${payload[f]}`;
+  }
   const expected = crypto
     .createHmac("sha256", selcomConfig.apiSecret)
     .update(signData)
     .digest("base64");
   try {
-    return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(providedDigest));
+    const a = Buffer.from(expected);
+    const b = Buffer.from(providedDigest);
+    if (a.length !== b.length) return "invalid";
+    return crypto.timingSafeEqual(a, b) ? "valid" : "invalid";
   } catch {
-    return false;
+    return "invalid";
   }
 }

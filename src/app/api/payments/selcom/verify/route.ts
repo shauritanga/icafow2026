@@ -12,8 +12,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing reference" }, { status: 400 });
   }
 
-  // Reconcile with the gateway (no-op in mock mode), then read local truth.
-  await verifyPayment(reference).catch(() => null);
+  // Only hit the gateway while the payment is still open; once settled the
+  // local record is authoritative (avoids hammering Selcom order-status).
+  const current = await prisma.payment.findUnique({ where: { reference } });
+  if (current && (current.status === "PENDING" || current.status === "PROCESSING")) {
+    await verifyPayment(reference).catch(() => null);
+  }
 
   const payment = await prisma.payment.findUnique({
     where: { reference },

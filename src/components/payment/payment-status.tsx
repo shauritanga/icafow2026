@@ -26,11 +26,17 @@ const statusMeta = {
   REFUNDED: { icon: RefreshCw, title: "Payment refunded", color: "text-muted-foreground", badge: "outline" as const },
 };
 
-export function PaymentStatus({ reference, mock }: { reference: string; mock: boolean }) {
+// Stop polling after ~2 minutes (24 × 5s); the gateway can still settle later
+// via webhook, so we surface a "still processing" hint instead of looping forever.
+const MAX_POLLS = 24;
+
+export function PaymentStatus({ reference }: { reference: string }) {
   const [data, setData] = React.useState<VerifyResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [pollsExhausted, setPollsExhausted] = React.useState(false);
+  const pollCount = React.useRef(0);
 
   const fetchStatus = React.useCallback(async () => {
     try {
@@ -51,27 +57,21 @@ export function PaymentStatus({ reference, mock }: { reference: string; mock: bo
     return () => clearTimeout(id);
   }, [fetchStatus]);
 
-  // Poll while processing/pending (real gateway settles asynchronously).
+  // Poll while processing/pending (real gateway settles asynchronously), with a
+  // bounded number of attempts so we never poll Selcom indefinitely.
   React.useEffect(() => {
     if (!data || data.status === "PAID" || data.status === "FAILED" || data.status === "CANCELLED") return;
-    if (mock) return; // mock waits for the simulate buttons
-    const id = setInterval(fetchStatus, 5000);
+    if (pollsExhausted) return;
+    const id = setInterval(() => {
+      pollCount.current += 1;
+      if (pollCount.current >= MAX_POLLS) {
+        setPollsExhausted(true);
+        return;
+      }
+      fetchStatus();
+    }, 5000);
     return () => clearInterval(id);
-  }, [data, mock, fetchStatus]);
-
-  async function simulate(outcome: "success" | "fail") {
-    setBusy(true);
-    try {
-      await fetch("/api/payments/mock-confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reference, outcome }),
-      });
-      await fetchStatus();
-    } finally {
-      setBusy(false);
-    }
-  }
+  }, [data, pollsExhausted, fetchStatus]);
 
   async function retry() {
     setBusy(true);
@@ -150,6 +150,13 @@ export function PaymentStatus({ reference, mock }: { reference: string; mock: bo
 
       {error && <p className="px-6 pb-2 text-sm text-destructive">{error}</p>}
 
+      {pollsExhausted && !isPaid && !isFailed && (
+        <p className="px-6 pb-2 text-center text-sm text-muted-foreground">
+          Still processing. If you completed payment, it may take a few minutes to
+          confirm — refresh this page shortly or contact us with your reference.
+        </p>
+      )}
+
       <div className="flex flex-col gap-3 border-t border-border p-6 sm:flex-row sm:justify-center">
         {isPaid && (
           <Button asChild variant="green" size="lg">
@@ -165,18 +172,6 @@ export function PaymentStatus({ reference, mock }: { reference: string; mock: bo
           <Link href="/"><ArrowLeft className="size-4" /> Back to home</Link>
         </Button>
       </div>
-
-      {mock && !isPaid && (
-        <div className="border-t border-dashed border-border bg-muted/40 p-6 text-center">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Mock mode — simulate the Selcom result
-          </p>
-          <div className="flex justify-center gap-3">
-            <Button onClick={() => simulate("success")} variant="green" disabled={busy}>Simulate Success</Button>
-            <Button onClick={() => simulate("fail")} variant="outline" disabled={busy}>Simulate Failure</Button>
-          </div>
-        </div>
-      )}
     </Card>
   );
 }
