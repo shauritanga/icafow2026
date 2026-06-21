@@ -32,7 +32,7 @@ export const passes: Pass[] = [
     id: "virtual",
     name: "Virtual Pass",
     subtitle: "Online Conference Access",
-    priceUSD: 0.5,
+    priceUSD: 50,
     tagline: "Ideal for students and professionals looking to participate in the conference virtually from anywhere.",
     accent: "green",
     ctaLabel: "Register Now",
