@@ -3,7 +3,7 @@ import {
   assertSelcomConfigured,
   SELCOM_TIMEOUT_MS,
 } from "./config";
-import { buildSelcomHeaders } from "./sign";
+import { buildSelcomHeaders, encodeUrl } from "./sign";
 import {
   type CreateOrderParams,
   type CreateOrderResult,
@@ -91,13 +91,19 @@ export async function createOrder(
   assertSelcomConfigured();
   const currency = params.currency || selcomConfig.currency;
 
-  // NOTE: /checkout/create-order-minimal only accepts these core fields.
-  // redirect_url / cancel_url / webhook are NOT supported by the minimal
-  // endpoint and cause Selcom to reject the request with HTTP 406 "Not
-  // Acceptable". The redirect and webhook URLs are configured at the vendor
-  // level in the Selcom Huduma portal instead; settlement is reconciled via the
-  // order-status endpoint (see getOrderStatus / verifyPayment).
-  // Field order matters for the signature.
+  // create-order-minimal accepts base64-encoded redirect_url / cancel_url /
+  // webhook (Selcom docs). Wiring these makes Selcom bounce the buyer back to our
+  // callback after payment (instead of stranding them on the hosted-checkout
+  // page) and POST a server-to-server notification to our webhook. We embed the
+  // order_id in the browser URLs so the callback can resolve the payment even if
+  // Selcom appends nothing. Settlement is still reconciled authoritatively via
+  // the order-status endpoint (see getOrderStatus / verifyPayment).
+  const appUrl = selcomConfig.appUrl.replace(/\/+$/, "");
+  const returnUrl = `${appUrl}/api/payments/selcom/callback?order=${encodeURIComponent(
+    params.orderId
+  )}`;
+  const webhookUrl = `${appUrl}/api/payments/selcom/webhook`;
+
   const payload: Record<string, string | number> = {
     vendor: selcomConfig.vendorId,
     order_id: params.orderId,
@@ -106,6 +112,9 @@ export async function createOrder(
     buyer_phone: normalizePhone(params.buyerPhone),
     amount: Math.round(params.amount),
     currency,
+    redirect_url: encodeUrl(returnUrl),
+    cancel_url: encodeUrl(returnUrl),
+    webhook: encodeUrl(webhookUrl),
     buyer_remarks: toSelcomAscii(params.remarks || "ICAFoW 2026 registration"),
     merchant_remarks: "ICAFoW 2026",
     no_of_items: 1,
