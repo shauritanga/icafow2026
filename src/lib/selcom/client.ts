@@ -29,6 +29,20 @@ function decodeGatewayUrl(value?: string): string | undefined {
   }
 }
 
+/**
+ * Reduce a string to plain ASCII for Selcom text fields. Selcom rejects requests
+ * containing non-ASCII characters (e.g. an em-dash "—" or accented letters in a
+ * buyer's name) with HTTP 406 "Not Acceptable". We decompose accents, map common
+ * Unicode dashes to a hyphen, then drop anything outside printable ASCII.
+ */
+export function toSelcomAscii(value: string): string {
+  return (value || "")
+    .normalize("NFKD")
+    .replace(/[‐-―]/g, "-") // hyphen, figure/en/em dashes → "-"
+    .replace(/[^\x20-\x7E]/g, "") // strip remaining non-ASCII
+    .trim();
+}
+
 /** Normalize a Tanzanian phone number to 255XXXXXXXXX. */
 export function normalizePhone(phone: string): string {
   const digits = (phone || "").replace(/\D/g, "");
@@ -88,11 +102,11 @@ export async function createOrder(
     vendor: selcomConfig.vendorId,
     order_id: params.orderId,
     buyer_email: params.buyerEmail,
-    buyer_name: params.buyerName,
+    buyer_name: toSelcomAscii(params.buyerName),
     buyer_phone: normalizePhone(params.buyerPhone),
     amount: Math.round(params.amount),
     currency,
-    buyer_remarks: params.remarks || "ICAFoW 2026 registration",
+    buyer_remarks: toSelcomAscii(params.remarks || "ICAFoW 2026 registration"),
     merchant_remarks: "ICAFoW 2026",
     no_of_items: 1,
   };
