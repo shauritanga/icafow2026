@@ -24,6 +24,8 @@ export interface Pass {
   image: string;
   /** Whether this is the standalone add-on (safari) vs a conference pass. */
   standalone?: boolean;
+  /** Online-only pass — no physical entrance, excluded from gate check-in. */
+  online?: boolean;
   features: string[];
 }
 
@@ -32,6 +34,7 @@ export const passes: Pass[] = [
     id: "virtual",
     name: "Virtual Pass",
     subtitle: "Online Conference Access",
+    online: true,
     priceUSD: 50,
     tagline: "Ideal for students and professionals looking to participate in the conference virtually from anywhere.",
     accent: "green",

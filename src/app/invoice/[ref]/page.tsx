@@ -33,14 +33,16 @@ export default async function InvoicePage(props: {
   const isPaid = payment?.status === "PAID";
   const issued = formatDate(registration.createdAt);
 
-  // A confirmed registration doubles as an entrance pass: render a signed QR
-  // (server-side SVG, print-safe) that staff scan at the gate to verify + check
-  // the attendee in. Live status is re-checked when the QR is scanned.
+  // A confirmed in-person registration doubles as an entrance pass: render a
+  // signed QR (server-side SVG, print-safe) that staff scan at the gate to verify
+  // + check the attendee in. Online-only passes (seats === 0) get no gate QR.
   const isValid = registration.status === "CONFIRMED";
+  const isEntrance = isValid && registration.seats > 0;
+  const isOnlineValid = isValid && registration.seats === 0;
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     (siteConfig.host ? `https://${siteConfig.host}` : "");
-  const qrSvg = isValid
+  const qrSvg = isEntrance
     ? await QRCode.toString(`${appUrl}/verify/${signVerifyToken(registration.id)}`, {
         type: "svg",
         margin: 1,
@@ -150,7 +152,7 @@ export default async function InvoicePage(props: {
             </div>
           )}
 
-          {/* Entrance pass — scannable verification QR */}
+          {/* Entrance pass — scannable verification QR (in-person passes only) */}
           {qrSvg && (
             <div className="mt-6 flex items-center gap-4 rounded-lg border border-border p-4">
               <div
@@ -164,6 +166,18 @@ export default async function InvoicePage(props: {
                   registration and check in. Reference {registration.reference}.
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Online-only pass — no physical entrance */}
+          {isOnlineValid && (
+            <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4 text-sm print:bg-muted/30">
+              <p className="font-semibold text-primary">Online access</p>
+              <p className="mt-1 text-muted-foreground">
+                This is a virtual (online) pass — joining details for the live
+                stream will be sent to {registration.email}. No physical entrance
+                pass is required.
+              </p>
             </div>
           )}
 

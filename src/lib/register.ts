@@ -73,6 +73,7 @@ export async function createRegistration(
     amount = pass.priceUSD;
     packageId = pass.id;
     packageLabel = pass.name;
+    seats = pass.online ? 0 : 1; // online passes have no physical entrance
     requiresPayment = amount > 0;
   } else if (type === "sponsor") {
     const tier = getSponsorTier(data.tierId as never);

@@ -73,7 +73,9 @@ export default async function VerifyPage(props: {
                 </span>
                 <h1 className="mt-4 font-display text-3xl font-bold tracking-wide">VALID</h1>
                 <p className="mt-1 text-sm text-white/85">
-                  Registration confirmed for {siteConfig.name}
+                  {registration.seats === 0
+                    ? "Virtual pass — online access"
+                    : `Registration confirmed for ${siteConfig.name}`}
                 </p>
               </div>
 
@@ -83,9 +85,11 @@ export default async function VerifyPage(props: {
                 <Row label="Reference" value={<span className="font-mono">{registration.reference}</span>} />
                 {registration.organization && <Row label="Organization" value={registration.organization} />}
                 <Row
-                  label="Check-in"
+                  label={registration.seats === 0 ? "Access" : "Check-in"}
                   value={
-                    registration.seats > 1 ? (
+                    registration.seats === 0 ? (
+                      <Badge variant="green">Online</Badge>
+                    ) : registration.seats > 1 ? (
                       <Badge variant={registration.checkedInCount >= registration.seats ? "gold" : "green"}>
                         {registration.checkedInCount} of {registration.seats} entered
                       </Badge>
@@ -101,7 +105,11 @@ export default async function VerifyPage(props: {
               </div>
 
               <div className="border-t border-border bg-muted/40 p-6">
-                {registration.checkedInCount >= registration.seats ? (
+                {registration.seats === 0 ? (
+                  <p className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+                    <ShieldCheck className="size-4 text-secondary" /> Online pass — no gate entry needed
+                  </p>
+                ) : registration.checkedInCount >= registration.seats ? (
                   <p className="text-center text-sm font-semibold text-gold">
                     {registration.seats > 1
                       ? `✓ All ${registration.seats} entered`
