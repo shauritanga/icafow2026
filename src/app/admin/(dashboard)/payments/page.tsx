@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge, StatCard } from "@/components/admin/ui";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyExact, formatDate } from "@/lib/utils";
 import { CreditCard, DollarSign, Clock } from "lucide-react";
 import { Stagger } from "@/components/motion/reveal";
 
@@ -18,7 +18,7 @@ export default async function PaymentsPage() {
     <Stagger className="h-full">
       <PageTitle title="Payments" subtitle="Monitor Selcom transactions and reconcile registrations." />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Collected" value={formatCurrency(paidAgg._sum.amount ?? 0)} icon={DollarSign} />
+        <StatCard label="Collected" value={formatCurrencyExact(paidAgg._sum.amount ?? 0)} icon={DollarSign} />
         <StatCard label="Successful" value={paidAgg._count} icon={CreditCard} />
         <StatCard label="Pending / Processing" value={pending} icon={Clock} />
       </div>
@@ -28,7 +28,7 @@ export default async function PaymentsPage() {
             <Td className="font-mono text-xs">{p.reference}</Td>
             <Td className="font-medium">{p.registration.fullName}</Td>
             <Td>{p.method}</Td>
-            <Td>{formatCurrency(p.amount, p.currency)}</Td>
+            <Td>{formatCurrencyExact(p.amount, p.currency)}</Td>
             <Td><StatusBadge status={p.status} /></Td>
             <Td className="text-muted-foreground">{p.selcomTransId ?? "—"}</Td>
             <Td className="text-muted-foreground">{formatDate(p.createdAt, { day: "numeric", month: "short" })}</Td>

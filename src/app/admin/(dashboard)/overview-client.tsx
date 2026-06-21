@@ -6,7 +6,7 @@ import { Users, DollarSign, FileText, Megaphone, ArrowRight, UserCheck } from "l
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
 import { Card } from "@/components/ui/card";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
-import { formatCurrency, formatDate, formatEnum } from "@/lib/utils";
+import { formatCurrencyExact, formatDate, formatEnum } from "@/lib/utils";
 
 export interface OverviewClientProps {
   totalRegs: number;
@@ -75,7 +75,7 @@ export function OverviewClient({
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-white/80">Revenue (Paid)</p>
-                <p className="mt-1 font-display text-4xl font-bold tracking-tight">{formatCurrency(revenue)}</p>
+                <p className="mt-1 font-display text-4xl font-bold tracking-tight">{formatCurrencyExact(revenue)}</p>
               </div>
               <span className="flex size-10 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur-sm">
                 <DollarSign className="size-5" />

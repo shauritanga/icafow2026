@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyExact, formatDate } from "@/lib/utils";
 import { RegistrationRowActions } from "@/components/admin/registration-actions";
 import { Stagger } from "@/components/motion/reveal";
 import { BoothReserveButton } from "@/components/forms/register-triggers";
@@ -29,7 +29,7 @@ export default async function ExhibitorsPage() {
             <Td>{e.packageLabel ?? "—"}</Td>
             <Td>{e.fullName}</Td>
             <Td className="text-muted-foreground">{e.email}</Td>
-            <Td>{formatCurrency(e.amount, e.currency)}</Td>
+            <Td>{formatCurrencyExact(e.amount, e.currency)}</Td>
             <Td><StatusBadge status={e.status} /></Td>
             <Td className="text-muted-foreground">{formatDate(e.createdAt, { day: "numeric", month: "short" })}</Td>
             <Td>

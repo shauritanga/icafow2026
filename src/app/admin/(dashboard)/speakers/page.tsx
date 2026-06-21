@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyExact, formatDate } from "@/lib/utils";
 import { RegistrationRowActions } from "@/components/admin/registration-actions";
 import { Stagger } from "@/components/motion/reveal";
 import { SpeakerApplyButton } from "@/components/forms/register-triggers";
@@ -29,7 +29,7 @@ export default async function SpeakersPage() {
             <Td className="text-muted-foreground max-w-[200px] truncate" title={s.jobTitle || ""}>{s.jobTitle ?? "—"}</Td>
             <Td className="text-muted-foreground max-w-[200px] truncate" title={s.organization || ""}>{s.organization ?? "—"}</Td>
             <Td>{s.country ?? "—"}</Td>
-            <Td>{s.amount > 0 ? formatCurrency(s.amount, s.currency) : "Free"}</Td>
+            <Td>{s.amount > 0 ? formatCurrencyExact(s.amount, s.currency) : "Free"}</Td>
             <Td><StatusBadge status={s.status} /></Td>
             <Td className="text-muted-foreground">{formatDate(s.createdAt, { day: "numeric", month: "short" })}</Td>
             <Td>

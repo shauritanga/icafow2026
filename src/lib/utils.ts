@@ -5,12 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Format a number as a currency string. */
+/** Format a number as a currency string (whole units, for the public site). */
 export function formatCurrency(amount: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+/**
+ * Currency with exact cents (two decimals) — used in the admin dashboard so the
+ * real amount is visible (e.g. $0.50, $1.00) instead of being rounded to whole
+ * units. The public site keeps `formatCurrency` (whole units).
+ */
+export function formatCurrencyExact(amount: number, currency = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 

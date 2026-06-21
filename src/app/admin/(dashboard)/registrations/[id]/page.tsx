@@ -4,7 +4,7 @@ import { ChevronRight, Home, User, Mail, Phone, Building, MapPin, Briefcase, Cal
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/admin/ui";
 import { Stagger, StaggerItem } from "@/components/motion/reveal";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyExact, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -191,7 +191,7 @@ export default async function ViewRegistrationPage({ params }: { params: Promise
                 <div>
                   <span className="text-xs text-muted-foreground block mb-0.5">Amount Payable</span>
                   <p className="text-2xl font-bold tracking-tight">
-                    {registration.amount > 0 ? formatCurrency(registration.amount, registration.currency) : "Free"}
+                    {registration.amount > 0 ? formatCurrencyExact(registration.amount, registration.currency) : "Free"}
                   </p>
                 </div>
                 {registration.amount > 0 && registration.status !== "CONFIRMED" && (

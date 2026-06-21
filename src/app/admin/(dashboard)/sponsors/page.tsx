@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { PageTitle, DataTable, Td, StatusBadge } from "@/components/admin/ui";
 import { RegistrationRowActions } from "@/components/admin/registration-actions";
 import { Stagger } from "@/components/motion/reveal";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrencyExact, formatDate } from "@/lib/utils";
 import { SponsorTierButton } from "@/components/forms/register-triggers";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export default async function SponsorsPage() {
               <div className="text-xs text-muted-foreground">{s.fullName}</div>
             </Td>
             <Td><span className="rounded-md bg-brand-gradient px-2 py-1 text-xs font-medium text-white">{s.packageLabel}</span></Td>
-            <Td>{s.amount > 0 ? formatCurrency(s.amount, s.currency) : "Custom"}</Td>
+            <Td>{s.amount > 0 ? formatCurrencyExact(s.amount, s.currency) : "Custom"}</Td>
             <Td><StatusBadge status={s.status} /></Td>
             <Td className="text-muted-foreground">{formatDate(s.createdAt, { day: "numeric", month: "short" })}</Td>
             <Td>
