@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Settle from the authoritative order-status endpoint only.
-  await verifyPayment(payment.reference).catch((err) =>
+  await verifyPayment(payment.reference, "WEBHOOK").catch((err) =>
     console.error("[selcom] webhook verifyPayment failed", payment.reference, err)
   );
 

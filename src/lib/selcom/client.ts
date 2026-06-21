@@ -99,9 +99,11 @@ export async function createOrder(
   // Selcom appends nothing. Settlement is still reconciled authoritatively via
   // the order-status endpoint (see getOrderStatus / verifyPayment).
   const appUrl = selcomConfig.appUrl.replace(/\/+$/, "");
-  const returnUrl = `${appUrl}/api/payments/selcom/callback?order=${encodeURIComponent(
+  const callbackBase = `${appUrl}/api/payments/selcom/callback?order=${encodeURIComponent(
     params.orderId
   )}`;
+  const returnUrl = callbackBase;
+  const cancelReturnUrl = `${callbackBase}&cancel=1`;
   const webhookUrl = `${appUrl}/api/payments/selcom/webhook`;
 
   const payload: Record<string, string | number> = {
@@ -113,7 +115,7 @@ export async function createOrder(
     amount: Math.round(params.amount),
     currency,
     redirect_url: encodeUrl(returnUrl),
-    cancel_url: encodeUrl(returnUrl),
+    cancel_url: encodeUrl(cancelReturnUrl),
     webhook: encodeUrl(webhookUrl),
     buyer_remarks: toSelcomAscii(params.remarks || "ICAFoW 2026 registration"),
     merchant_remarks: "ICAFoW 2026",

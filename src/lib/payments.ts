@@ -4,6 +4,16 @@ import { usdToCharge, selcomConfig } from "@/lib/selcom/config";
 import type { PaymentMethod as FormPaymentMethod } from "@/lib/validations/common";
 import type { PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 
+/** Where a payment status transition originated (for the audit log). */
+export type PaymentEventSource =
+  | "REDIRECT"
+  | "WEBHOOK"
+  | "RECONCILE"
+  | "MANUAL"
+  | "POLL"
+  | "INITIATE"
+  | "SYSTEM";
+
 const methodMap: Record<FormPaymentMethod, PaymentMethod> = {
   card: "CARD",
   tigopesa: "TIGOPESA",
@@ -134,7 +144,13 @@ export async function findPaymentBySelcomOrderId(orderId: string) {
 export async function applyPaymentStatus(
   reference: string,
   status: PaymentStatus,
-  opts: { transId?: string; reason?: string; payload?: unknown } = {}
+  opts: {
+    transId?: string;
+    reason?: string;
+    payload?: unknown;
+    source?: PaymentEventSource;
+    amount?: number;
+  } = {}
 ) {
   // Guarded conditional update: only transition rows that aren't already PAID
   // (a refund is the one allowed post-PAID transition).
@@ -151,6 +167,12 @@ export async function applyPaymentStatus(
       : {}),
   };
 
+  // Capture the prior status so the audit log records the actual transition.
+  const prior = await prisma.payment.findUnique({
+    where: { reference },
+    select: { id: true, status: true },
+  });
+
   const { count } = await prisma.payment.updateMany({ where: guard, data });
 
   const payment = await prisma.payment.findUnique({
@@ -162,6 +184,23 @@ export async function applyPaymentStatus(
   // No row changed → it was already settled (idempotent no-op).
   if (count === 0) {
     return { ok: true as const, payment, alreadySettled: true };
+  }
+
+  // Append-only audit of the transition we just made. Never let an audit-write
+  // failure break settlement.
+  if (prior) {
+    await prisma.paymentEvent
+      .create({
+        data: {
+          paymentId: prior.id,
+          fromStatus: prior.status,
+          toStatus: status,
+          source: opts.source ?? "SYSTEM",
+          amount: opts.amount != null ? Math.round(opts.amount) : null,
+          message: opts.reason ?? null,
+        },
+      })
+      .catch((err) => console.error("[payments] audit write failed", reference, err));
   }
 
   if (status === "PAID") {
@@ -181,7 +220,10 @@ export async function applyPaymentStatus(
  * are never trusted directly. Before settling PAID we verify the gateway-reported
  * amount + currency against the snapshot taken at order creation.
  */
-export async function verifyPayment(reference: string) {
+export async function verifyPayment(
+  reference: string,
+  source: PaymentEventSource = "POLL"
+) {
   const payment = await prisma.payment.findUnique({ where: { reference } });
   if (!payment || !payment.selcomOrderId) {
     return { ok: false as const, status: payment?.status ?? "PENDING" };
@@ -211,6 +253,8 @@ export async function verifyPayment(reference: string) {
       await applyPaymentStatus(reference, "PROCESSING", {
         reason: `Amount/currency mismatch: expected ${payment.chargeAmount} ${payment.chargeCurrency}, got ${result.amount} ${result.currency}`,
         payload: result.raw,
+        source,
+        amount: result.amount,
       });
       return { ok: false as const, status: "PROCESSING" as const, mismatch: true };
     }
@@ -218,9 +262,15 @@ export async function verifyPayment(reference: string) {
     await applyPaymentStatus(reference, "PAID", {
       transId: result.transId,
       payload: result.raw,
+      source,
+      amount: result.amount,
     });
   } else if (result.status === "FAILED" || result.status === "CANCELLED") {
-    await applyPaymentStatus(reference, result.status, { payload: result.raw });
+    await applyPaymentStatus(reference, result.status, {
+      payload: result.raw,
+      source,
+      amount: result.amount,
+    });
   }
 
   return { ok: true as const, status: result.status };

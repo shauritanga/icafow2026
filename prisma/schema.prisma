@@ -146,11 +146,29 @@ model Payment {
   paidAt    DateTime?
   registrationId String
   registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  events    PaymentEvent[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([registrationId])
+}
+
+/// Append-only audit log of every payment status transition. Real-money
+/// forensics: who/what moved the payment and from where (redirect / webhook /
+/// reconcile sweep / manual admin / foreground poll).
+model PaymentEvent {
+  id         String        @id @default(cuid())
+  paymentId  String
+  payment    Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  fromStatus PaymentStatus?
+  toStatus   PaymentStatus
+  source     String        // REDIRECT | WEBHOOK | RECONCILE | MANUAL | POLL | INITIATE
+  amount     Int?          // gateway-reported amount at the time, if any
+  message    String?
+  createdAt  DateTime      @default(now())
+
+  @@index([paymentId])
 }
 
 /// Research paper attached to an attendee (Researcher Pass) registration.

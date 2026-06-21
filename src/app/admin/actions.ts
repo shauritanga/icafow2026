@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { verifyVerifyToken } from "@/lib/verify-token";
+import { verifyPayment } from "@/lib/payments";
 import nodemailer from "nodemailer";
 
 export async function updateProfile(data: { name?: string; phone?: string; avatarData?: string | null }) {
@@ -101,6 +102,20 @@ export async function markCheckedIn(token: string, path: string) {
     checkedInCount,
     seats,
   };
+}
+
+/**
+ * Manually re-query Selcom for a payment's authoritative status and reconcile it.
+ * Staff-only ops tool for stuck/disputed payments. Settlement still goes through
+ * verifyPayment (amount-checked, idempotent); this just triggers it on demand.
+ */
+export async function reverifyPayment(reference: string, path: string) {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const result = await verifyPayment(reference, "MANUAL");
+  revalidatePath(path);
+  return { ok: true as const, status: result.status };
 }
 
 export async function updateRegistrationStatus(id: string, status: "PENDING" | "CONFIRMED" | "CANCELLED" | "WAITLISTED", path: string) {
