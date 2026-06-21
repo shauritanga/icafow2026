@@ -65,7 +65,7 @@ export async function sendRegistrationConfirmation(email: string, fullName: stri
       <p>Dear ${fullName},</p>
       <p>Thank you for submitting your <strong>${typeLabel}</strong> application for the International Conference on AI & the Future of Work (ICAFoW 2026).</p>
       <p>We have successfully received your details. Our team is currently reviewing your submission. You can expect to hear from us shortly regarding the next steps.</p>
-      <p>If you have any immediate questions, please don't hesitate to reply to this email.</p>
+      <p>If you have any immediate questions, please don't hesitate to contact us.</p>
       <br />
       <p>Warm regards,<br /><strong>The ICAFoW 2026 Team</strong></p>
     </div>
@@ -143,7 +143,7 @@ export async function sendApprovalNotification(email: string, name: string, type
       <p>We are thrilled to inform you that your <strong>${typeLabel}</strong> application for the International Conference on AI & the Future of Work (ICAFoW 2026) has been officially approved!</p>
       <p>Your profile and details are now confirmed in our system.</p>
       <p>Our team will be in touch with you shortly with further details and next steps to prepare for the conference.</p>
-      <p>If you have any questions, please reply to this email.</p>
+      <p>If you have any questions, please don't hesitate to contact us.</p>
       <br />
       <p>Warm regards,<br /><strong>The ICAFoW 2026 Team</strong></p>
     </div>
