@@ -19,45 +19,9 @@ import {
 } from "@/components/forms/modal-form";
 import { speakerSchema, type SpeakerInput } from "@/lib/validations/registration";
 import { submitRegistration } from "@/lib/client/submit";
+import { compressImage, MAX_ORIGINAL_BYTES, MAX_ENCODED_LENGTH } from "@/lib/client/image";
 import { tracks } from "@/lib/content/tracks";
 import { usePathname } from "next/navigation";
-
-/**
- * Downscale + re-encode an image entirely in the browser before upload.
- * Caps the longest edge at `maxEdge` px and exports JPEG, which turns a
- * multi-MB phone photo (incl. HEIC, which the canvas re-encodes) into
- * ~100-200KB. This keeps the JSON POST body small so it never trips the
- * reverse-proxy / platform body-size limit, and guarantees the preview
- * renders.
- */
-async function compressImage(file: File, maxEdge = 800, quality = 0.8): Promise<string> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("Could not read the image file. Please try another."));
-    reader.readAsDataURL(file);
-  });
-
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("That file does not appear to be a valid image."));
-    image.src = dataUrl;
-  });
-
-  const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
-  const width = Math.max(1, Math.round(img.width * scale));
-  const height = Math.max(1, Math.round(img.height * scale));
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not process the image. Please try a different browser.");
-  ctx.drawImage(img, 0, 0, width, height);
-
-  return canvas.toDataURL("image/jpeg", quality);
-}
 
 export function SpeakerDialog({
   open,
@@ -91,7 +55,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
     if (!file) return;
     setPhotoError(null);
     // Guard against absurd originals before we even decode them.
-    if (file.size > 25 * 1024 * 1024) {
+    if (file.size > MAX_ORIGINAL_BYTES) {
       setPhotoError("Image is too large. Please choose a file under 25MB.");
       return;
     }
@@ -99,7 +63,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
       const compressed = await compressImage(file);
       // Final guard on the *encoded* payload (an 800px JPEG should be well
       // under this). Prevents a too-large body from ever leaving the browser.
-      if (compressed.length > 1_500_000) {
+      if (compressed.length > MAX_ENCODED_LENGTH) {
         setPhotoError("Could not compress this image enough. Please try a different photo.");
         return;
       }

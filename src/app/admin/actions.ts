@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { verifyVerifyToken } from "@/lib/verify-token";
 import { verifyPayment } from "@/lib/payments";
+import type { Prisma } from "@prisma/client";
 import nodemailer from "nodemailer";
 
 export async function updateProfile(data: { name?: string; phone?: string; avatarData?: string | null }) {
@@ -131,9 +132,50 @@ export async function updateRegistrationStatus(id: string, status: "PENDING" | "
   return { success: true };
 }
 
-export async function updateRegistration(id: string, data: { fullName: string; email: string; phone?: string; organization?: string }, path: string) {
+export async function updateRegistration(
+  id: string,
+  data: {
+    fullName: string;
+    email: string;
+    phone?: string;
+    organization?: string;
+    jobTitle?: string;
+    // When provided, these are merged into the registration's `details` JSON
+    // without clobbering the rest of the application responses. Used to let
+    // admins edit a speaker's profile photo (details.photoData) and talk
+    // topic (details.topic), both of which the public speakers section
+    // renders directly.
+    photoData?: string;
+    topic?: string;
+  },
+  path: string
+) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
+
+  // Collect any details.* fields the caller wants to update, then merge them
+  // into the existing JSON in a single read so we never drop other responses.
+  const detailPatch: Record<string, unknown> = {};
+  if (typeof data.photoData === "string" && data.photoData.length > 0) {
+    detailPatch.photoData = data.photoData;
+  }
+  if (data.topic !== undefined) {
+    detailPatch.topic = data.topic;
+  }
+
+  let details: Prisma.InputJsonValue | undefined;
+  if (Object.keys(detailPatch).length > 0) {
+    const existing = await prisma.registration.findUnique({
+      where: { id },
+      select: { details: true },
+    });
+    if (!existing) throw new Error("Registration not found");
+    const base =
+      existing.details && typeof existing.details === "object" && !Array.isArray(existing.details)
+        ? (existing.details as Record<string, unknown>)
+        : {};
+    details = { ...base, ...detailPatch } as Prisma.InputJsonValue;
+  }
 
   await prisma.registration.update({
     where: { id },
@@ -142,6 +184,8 @@ export async function updateRegistration(id: string, data: { fullName: string; e
       email: data.email,
       phone: data.phone || null,
       organization: data.organization || null,
+      ...(data.jobTitle !== undefined ? { jobTitle: data.jobTitle || null } : {}),
+      ...(details !== undefined ? { details } : {}),
     },
   });
   revalidatePath(path);
