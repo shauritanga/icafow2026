@@ -22,6 +22,43 @@ import { submitRegistration } from "@/lib/client/submit";
 import { tracks } from "@/lib/content/tracks";
 import { usePathname } from "next/navigation";
 
+/**
+ * Downscale + re-encode an image entirely in the browser before upload.
+ * Caps the longest edge at `maxEdge` px and exports JPEG, which turns a
+ * multi-MB phone photo (incl. HEIC, which the canvas re-encodes) into
+ * ~100-200KB. This keeps the JSON POST body small so it never trips the
+ * reverse-proxy / platform body-size limit, and guarantees the preview
+ * renders.
+ */
+async function compressImage(file: File, maxEdge = 800, quality = 0.8): Promise<string> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Could not read the image file. Please try another."));
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("That file does not appear to be a valid image."));
+    image.src = dataUrl;
+  });
+
+  const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+  const width = Math.max(1, Math.round(img.width * scale));
+  const height = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Could not process the image. Please try a different browser.");
+  ctx.drawImage(img, 0, 0, width, height);
+
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
 export function SpeakerDialog({
   open,
   onOpenChange,
@@ -49,22 +86,31 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
     defaultValues: { country: "" },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      setPhotoError("Image must be less than 2MB");
+    setPhotoError(null);
+    // Guard against absurd originals before we even decode them.
+    if (file.size > 25 * 1024 * 1024) {
+      setPhotoError("Image is too large. Please choose a file under 25MB.");
       return;
     }
-    setPhotoError(null);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setPhotoData(base64);
-      setValue("photoData", base64);
+    try {
+      const compressed = await compressImage(file);
+      // Final guard on the *encoded* payload (an 800px JPEG should be well
+      // under this). Prevents a too-large body from ever leaving the browser.
+      if (compressed.length > 1_500_000) {
+        setPhotoError("Could not compress this image enough. Please try a different photo.");
+        return;
+      }
+      setPhotoData(compressed);
+      setValue("photoData", compressed);
       trigger("photoData");
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      setPhotoData(null);
+      setValue("photoData", "");
+      setPhotoError(err instanceof Error ? err.message : "Could not process the image.");
+    }
   };
 
   async function onSubmit(data: SpeakerInput) {
@@ -153,7 +199,7 @@ function SpeakerForm({ onClose }: { onClose?: () => void }) {
                     className="cursor-pointer file:text-primary file:font-medium file:bg-primary/10 file:border-0 file:rounded-md file:mr-4 file:px-3 file:py-1 hover:file:bg-primary/20"
                   />
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Used for the speakers section on the website. Max size 2MB.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Used for the speakers section on the website. Any photo works — we resize it for you.</p>
               </Field>
             </FormSection>
 

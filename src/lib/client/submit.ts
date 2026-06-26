@@ -19,6 +19,11 @@ export async function submitRegistration(
     body: JSON.stringify(data),
   });
   if (!res.ok) {
+    if (res.status === 413) {
+      throw new Error(
+        "Your upload is too large. Please use a smaller image and try again."
+      );
+    }
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || "Registration failed. Please try again.");
   }

@@ -151,30 +151,38 @@ export async function createRegistration(
   };
   const targetUrl = urlMap[type] || "/admin";
 
-  await prisma.notificationJob.createMany({
-    data: [
-      {
-        type: "EMAIL",
-        payload: { action: "USER_CONFIRMATION", to: email, name: fullName, typeLabel: typeLabelStr },
-      },
-      {
-        type: "EMAIL",
-        payload: { action: "ADMIN_ALERT", name: fullName, email: email, typeLabel: typeLabelStr, reference },
-      },
-      {
-        type: "PUSH",
-        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
-      },
-      {
-        type: "IN_APP",
-        payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
-      }
-    ]
-  });
+  // The registration row is already committed above. Notifications are a
+  // best-effort side effect — if enqueueing fails we must NOT fail the
+  // request, or the user sees an error for a registration that actually
+  // succeeded (and may submit again, creating a duplicate).
+  try {
+    await prisma.notificationJob.createMany({
+      data: [
+        {
+          type: "EMAIL",
+          payload: { action: "USER_CONFIRMATION", to: email, name: fullName, typeLabel: typeLabelStr },
+        },
+        {
+          type: "EMAIL",
+          payload: { action: "ADMIN_ALERT", name: fullName, email: email, typeLabel: typeLabelStr, reference },
+        },
+        {
+          type: "PUSH",
+          payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
+        },
+        {
+          type: "IN_APP",
+          payload: { title: `New ${typeLabelStr} Registration`, body: `${fullName} has just registered. Reference: ${reference}`, url: targetUrl },
+        }
+      ]
+    });
 
-  // Trigger processor instantly internally (Environment-Agnostic!)
-  // This removes the need for a complicated fetch call and works locally or on production instantly.
-  processNotificationQueue().catch((err) => console.error("Internal queue processor failed:", err));
+    // Trigger processor instantly internally (Environment-Agnostic!)
+    // This removes the need for a complicated fetch call and works locally or on production instantly.
+    processNotificationQueue().catch((err) => console.error("Internal queue processor failed:", err));
+  } catch (err) {
+    console.error(`Failed to enqueue notifications for ${reference}:`, err);
+  }
 
   return { ok: true, reference, requiresPayment, amount };
 }
